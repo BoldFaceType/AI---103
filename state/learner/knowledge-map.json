@@ -1,0 +1,18 @@
+{
+  "language-services": {
+    "confidence": 0.7,
+    "mastery": 0.62
+  },
+  "responsible-ai": {
+    "confidence": 0.75,
+    "mastery": 0.8
+  },
+  "search-services": {
+    "confidence": 0.5,
+    "mastery": 0.45
+  },
+  "vision-services": {
+    "confidence": 0.6,
+    "mastery": 0.52
+  }
+}

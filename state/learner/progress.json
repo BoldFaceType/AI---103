@@ -1,0 +1,47 @@
+{
+  "events": [
+    {
+      "concepts": [
+        "vision-services"
+      ],
+      "event_id": "seed-quiz-001",
+      "score": 0.55,
+      "ts": "2026-05-21T00:00:00Z",
+      "type": "quiz_completed"
+    },
+    {
+      "event_id": "decision-2026-05-25T04:01:29.296857Z",
+      "tasks_created": 0,
+      "ts": "2026-05-25T04:01:29.331437Z",
+      "type": "decision_made"
+    },
+    {
+      "concepts": [
+        "search-services"
+      ],
+      "event_id": "quiz-002",
+      "score": 0.85,
+      "ts": "2026-05-25T05:00:00Z",
+      "type": "quiz_completed"
+    },
+    {
+      "concepts": [
+        "vision-services"
+      ],
+      "event_id": "quiz-003",
+      "score": 0.9,
+      "ts": "2026-05-25T05:10:00Z",
+      "type": "quiz_completed"
+    },
+    {
+      "concepts": [
+        "language-services"
+      ],
+      "event_id": "quiz-004",
+      "score": 0.6,
+      "ts": "2026-05-25T05:20:00Z",
+      "type": "quiz_completed"
+    }
+  ],
+  "percentComplete": 0.4
+}
