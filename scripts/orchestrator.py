@@ -103,10 +103,10 @@ def bootstrap_files(repo: StateRepository) -> list[Path]:
             "responsible-ai": {"weight": 0.25},
         },
         repo.root / "state" / "learner" / "knowledge-map.json": {
-            "vision-services": {"mastery": 0.4, "confidence": 0.5},
-            "language-services": {"mastery": 0.6, "confidence": 0.7},
-            "search-services": {"mastery": 0.35, "confidence": 0.4},
-            "responsible-ai": {"mastery": 0.8, "confidence": 0.75},
+            "vision-services": {"mastery": 0.0, "confidence": 0.0},
+            "language-services": {"mastery": 0.0, "confidence": 0.0},
+            "search-services": {"mastery": 0.0, "confidence": 0.0},
+            "responsible-ai": {"mastery": 0.0, "confidence": 0.0},
         },
         repo.root / "state" / "learner" / "habits.json": {
             "quiz_count": 0,

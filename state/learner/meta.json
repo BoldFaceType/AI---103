@@ -1,9 +1,4 @@
 {
-  "last_processed_ts": "2026-05-25T05:20:00Z",
-  "processed_event_ids": [
-    "quiz-002",
-    "quiz-003",
-    "quiz-004",
-    "seed-quiz-001"
-  ]
+  "last_processed_ts": null,
+  "processed_event_ids": []
 }
