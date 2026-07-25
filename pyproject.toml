@@ -1,0 +1,41 @@
+[project]
+name = "ai-103"
+version = "0.1.0"
+description = "Local-first Adaptive Learning Orchestrator for AI-103 study."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.0",
+    "pytest-cov>=6.2.0",
+    "responses>=0.25.0",
+    "ruff>=0.12.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+addopts = [
+    "-m",
+    "not live_azure",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+markers = [
+    "unit: offline unit tests",
+    "integration: offline integration tests",
+    "contract: schema and compatibility contract tests",
+    "eval: learning-content and tutor quality evaluation tests",
+    "live_azure: tests that deploy or call live Azure services",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+ignore = ["E402"]

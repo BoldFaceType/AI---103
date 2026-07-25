@@ -17,12 +17,11 @@ from merge_utils import merge_progress, merge_tasks
 from orchestrator import (
     apply_quiz_event,
     build_snapshot,
-    build_task,
     generate_tasks,
     process_events,
     StateRepository,
 )
-from state_utils import append_ndjson, atomic_write_text, load_json, load_ndjson, save_json, update_vmeta
+from state_utils import append_ndjson, load_json, load_ndjson, save_json
 
 
 # ---------------------------------------------------------------------------
