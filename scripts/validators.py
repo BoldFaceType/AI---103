@@ -1,8 +1,15 @@
 from __future__ import annotations
 
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+SRC = Path(__file__).resolve().parents[1] / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from ai103.learning.events import KNOWN_EVENT_TYPES, validate_learning_event
 
 AI103_DOMAIN_IDS = {"PM", "GA", "CV", "TA", "IE"}
 
@@ -153,17 +160,14 @@ def validate_event(data: dict[str, Any]) -> list[str]:
     for field in required:
         if field not in data:
             errors.append(f"event missing required field '{field}'")
-    if "schema_version" in data and data["schema_version"] != 2:
+    if "schema_version" not in data:
+        errors.append("event.schema_version must be 2")
+    elif data["schema_version"] != 2:
         errors.append("event.schema_version must be 2")
     if "ts" in data and not _is_timestamp(data["ts"]):
         errors.append("event.ts must be an ISO timestamp")
-    if data.get("type") == "quiz_completed":
-        if not _is_number(data.get("score")):
-            errors.append("quiz_completed.score must be numeric")
-        if not isinstance(data.get("concepts"), list) or not data["concepts"]:
-            errors.append("quiz_completed.concepts must be a non-empty list")
-        elif not all(isinstance(concept, str) and concept.strip() for concept in data["concepts"]):
-            errors.append("quiz_completed.concepts must contain non-empty strings")
+    if data.get("type") in KNOWN_EVENT_TYPES:
+        errors.extend(validate_learning_event(data))
     return errors
 
 

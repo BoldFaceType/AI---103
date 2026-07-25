@@ -117,7 +117,9 @@ def test_validators_accept_valid_shapes_and_report_invalid_shapes(tmp_path):
             "status": "open",
         }
     ) == []
-    assert validate_event({"ts": "2026-01-01T00:00:00Z", "type": "quiz_completed", "event_id": "e1", "score": 1, "concepts": ["vision"]}) == []
+    assert validate_event(
+        {"schema_version": 2, "ts": "2026-01-01T00:00:00Z", "type": "quiz_completed", "event_id": "e1", "score": 1, "concepts": ["vision"]}
+    ) == []
 
     assert "profile.name must be a non-empty string" in validate_profile({"name": "", "primary_goal": "", "preferences": []})
     assert "learning_policy.remediation_threshold must be greater than 0 and at most 1" in validate_learning_policy(
@@ -131,8 +133,10 @@ def test_validators_accept_valid_shapes_and_report_invalid_shapes(tmp_path):
     assert "knowledge entry 'bad' must be an object" in validate_knowledge_map({"bad": 1})
     assert "knowledge entry 'bad' field 'mastery' must be between 0 and 1" in validate_knowledge_map({"bad": {"mastery": 2, "confidence": False}})
     assert "task missing required field 'id'" in validate_task({"status": "blocked", "objective_ids": "vision", "estimated_minutes": 0})
-    assert "quiz_completed.score must be numeric" in validate_event({"type": "quiz_completed"})
-    assert "quiz_completed.concepts must be a non-empty list" in validate_event({"type": "quiz_completed", "score": 0.5, "ts": "now", "event_id": "e"})
+    assert "event.schema_version must be 2" in validate_event({"type": "quiz_completed"})
+    assert "quiz_completed must include concepts, competency_ids, or objective_ids" in validate_event(
+        {"schema_version": 2, "type": "quiz_completed", "score": 0.5, "ts": "now", "event_id": "e"}
+    )
 
     assert validate_path(Path("profile.user.json"), {"name": "A", "primary_goal": "Pass"}) == []
     assert validate_path(Path("learning-policy.json"), {"remediation_threshold": 0.8}) == []
@@ -177,6 +181,7 @@ def test_repository_methods_bootstrap_run_once_and_initialize(tmp_path, monkeypa
 
     repo.append_event(
         {
+            "schema_version": 2,
             "ts": "2026-01-02T00:00:00Z",
             "type": "quiz_completed",
             "event_id": "quiz-extra",
@@ -209,7 +214,7 @@ def test_orchestrator_error_and_branch_paths(tmp_path, monkeypatch):
         tmp_path / "logs" / "events.ndjson",
         [
             {"ts": "2026-01-01T00:00:00Z", "type": "bad", "event_id": "skip"},
-            {"ts": "2026-01-01T00:00:00Z", "type": "quiz_completed", "event_id": "bad-quiz", "score": "x", "concepts": []},
+            {"schema_version": 2, "ts": "2026-01-01T00:00:00Z", "type": "quiz_completed", "event_id": "bad-quiz", "score": "x", "concepts": []},
         ],
     )
     knowledge, habits, progress, meta = orchestrator.process_events(repo, {}, {}, {}, {})

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -21,6 +22,14 @@ from validators import (
 SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
+
+from ai103.learning.events import (
+    corrupt_event_record,
+    evidence_signal,
+    is_audit_only_event,
+    is_deterministic_evidence_event,
+    is_known_event,
+)
 
 
 DEFAULT_REMEDIATION_THRESHOLD = 0.8
@@ -103,6 +112,26 @@ class StateRepository:
     def load_events(self) -> list[dict[str, Any]]:
         return load_ndjson(self.root / "logs" / "events.ndjson")
 
+    def load_event_records(self) -> list[dict[str, Any]]:
+        path = self.root / "logs" / "events.ndjson"
+        if not path.exists():
+            return []
+        records: list[dict[str, Any]] = []
+        for line_number, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            line = raw_line.strip()
+            if not line:
+                continue
+            try:
+                records.append({"event": json.loads(line), "corrupt": None})
+            except json.JSONDecodeError as exc:
+                records.append({"event": None, "corrupt": corrupt_event_record(line_number, raw_line, str(exc))})
+        return records
+
+    def quarantine_event(self, record: dict[str, Any]) -> None:
+        path = self.root / "_meta" / "quarantine" / "events.ndjson"
+        append_ndjson(path, [record])
+        update_vmeta(path, "orchestrator", self.root)
+
     def append_event(self, event: dict[str, Any]) -> None:
         path = self.root / "logs" / "events.ndjson"
         append_ndjson(path, [event])
@@ -166,6 +195,28 @@ def event_concepts_for_knowledge(knowledge: dict[str, Any], concept: str) -> lis
     if isinstance(knowledge.get("domains"), dict):
         return LEGACY_CONCEPT_MAPPING.get(concept, [concept])
     return [concept]
+
+
+def update_metric(
+    current: dict[str, Any],
+    score: float,
+    event_id: str,
+    remediation_threshold: float,
+) -> dict[str, Any]:
+    mastery = float(current.get("mastery", 0.0))
+    confidence = float(current.get("confidence", 0.0))
+    if score >= remediation_threshold:
+        mastery = min(1.0, mastery + 0.1)
+        confidence = min(1.0, confidence + 0.1)
+    else:
+        mastery = max(0.0, mastery - 0.05)
+        confidence = max(0.0, confidence - 0.05)
+    updated = dict(current)
+    updated["mastery"] = round(mastery, 3)
+    updated["confidence"] = round(confidence, 3)
+    if "evidence_refs" in current:
+        updated["evidence_refs"] = sorted(set(current.get("evidence_refs", []) + [event_id]))
+    return updated
 
 
 def bootstrap_files(repo: StateRepository) -> list[Path]:
@@ -252,23 +303,38 @@ def apply_quiz_event(
         for target in event_concepts_for_knowledge(knowledge, concept):
             entries = knowledge_entries(knowledge)
             current = entries.get(target, {"mastery": 0.0, "confidence": 0.0, "evidence_refs": []})
-            mastery = float(current.get("mastery", 0.0))
-            confidence = float(current.get("confidence", 0.0))
-            if score >= remediation_threshold:
-                mastery = min(1.0, mastery + 0.1)
-                confidence = min(1.0, confidence + 0.1)
-            else:
-                mastery = max(0.0, mastery - 0.05)
-                confidence = max(0.0, confidence - 0.05)
-            updated = {
-                "mastery": round(mastery, 3),
-                "confidence": round(confidence, 3),
-            }
-            if "evidence_refs" in current:
-                updated["evidence_refs"] = sorted(set(current.get("evidence_refs", []) + [event.get("event_id", "")]))
-            entries[target] = updated
+            entries[target] = update_metric(current, score, event.get("event_id", ""), remediation_threshold)
     habits["quiz_count"] = int(habits.get("quiz_count", 0)) + 1
     habits["last_quiz_ts"] = event.get("ts")
+    return knowledge
+
+
+def apply_learning_event(
+    knowledge: dict[str, Any],
+    habits: dict[str, Any],
+    event: dict[str, Any],
+    remediation_threshold: float = DEFAULT_REMEDIATION_THRESHOLD,
+) -> dict[str, Any]:
+    if event.get("type") == "quiz_completed" and "concepts" in event:
+        return apply_quiz_event(knowledge, habits, event, remediation_threshold)
+
+    signal = evidence_signal(event)
+    for objective_id in signal.objective_ids:
+        entries = knowledge_entries(knowledge)
+        domain_id = objective_id.split("-", 1)[0] if "-" in objective_id else objective_id
+        if domain_id not in entries:
+            continue
+        entries[domain_id] = update_metric(entries[domain_id], signal.score, signal.event_id, remediation_threshold)
+        if "-" in objective_id:
+            competencies = dict(entries[domain_id].get("competencies", {}))
+            current = competencies.get(objective_id, {"mastery": 0.0, "confidence": 0.0, "evidence_refs": []})
+            competencies[objective_id] = update_metric(current, signal.score, signal.event_id, remediation_threshold)
+            entries[domain_id]["competencies"] = competencies
+    if event.get("type") == "quiz_completed":
+        habits["quiz_count"] = int(habits.get("quiz_count", 0)) + 1
+        habits["last_quiz_ts"] = event.get("ts")
+    else:
+        habits["evidence_event_count"] = int(habits.get("evidence_event_count", 0)) + 1
     return knowledge
 
 
@@ -282,21 +348,35 @@ def process_events(
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
     processed_event_ids = set(meta.get("processed_event_ids", []))
     incoming_events: list[dict[str, Any]] = []
-    for event in repo.load_events():
+    for record in repo.load_event_records():
+        if record.get("corrupt"):
+            repo.quarantine_event(record["corrupt"])
+            append_audit("quarantine_event", "logs/events.ndjson", "orchestrator", "failed", record["corrupt"])
+            continue
+        event = record["event"]
         errors = validate_event(event)
         if errors:
+            repo.quarantine_event({"schema_version": AI103_SCHEMA_VERSION, "event": event, "errors": errors})
             append_audit("validate_event", "logs/events.ndjson", "orchestrator", "failed", {"errors": errors, "event": event})
             continue
         if event["event_id"] in processed_event_ids:
             continue
-        if event.get("type") not in {"quiz_completed"}:
+        if not is_known_event(event):
+            append_audit("skip_unknown_event", "logs/events.ndjson", "orchestrator", "skipped", {"event": event})
+            processed_event_ids.add(event["event_id"])
             continue
-        knowledge = apply_quiz_event(knowledge, habits, event, remediation_threshold)
+        if is_audit_only_event(event):
+            append_audit("audit_only_event", "logs/events.ndjson", "orchestrator", "ok", {"event": event})
+            processed_event_ids.add(event["event_id"])
+            continue
+        if not is_deterministic_evidence_event(event):
+            continue
+        knowledge = apply_learning_event(knowledge, habits, event, remediation_threshold)
         incoming_events.append(event)
         processed_event_ids.add(event["event_id"])
         meta["last_processed_ts"] = event.get("ts")
 
-    if incoming_events:
+    if incoming_events or sorted(processed_event_ids) != sorted(meta.get("processed_event_ids", [])):
         progress = merge_progress(progress, incoming_events)
         meta["processed_event_ids"] = sorted(processed_event_ids)
     return knowledge, habits, progress, meta

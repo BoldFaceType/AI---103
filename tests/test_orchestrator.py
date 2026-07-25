@@ -34,7 +34,7 @@ def repo(tmp_path):
 
 
 def make_event(event_id: str, score: float, concepts: list[str], ts: str = "2026-01-01T00:00:00Z") -> dict:
-    return {"ts": ts, "type": "quiz_completed", "event_id": event_id, "score": score, "concepts": concepts}
+    return {"schema_version": 2, "ts": ts, "type": "quiz_completed", "event_id": event_id, "score": score, "concepts": concepts}
 
 
 def seed_events(repo: StateRepository, events: list[dict]) -> None:
@@ -153,8 +153,8 @@ class TestEventProcessor:
         knowledge, habits, progress, meta = process_events(repo, knowledge, habits, progress, meta)
         assert knowledge["vision-services"]["mastery"] == pytest.approx(0.4, abs=0.001)
 
-    def test_decision_made_events_not_tracked(self, repo):
-        decision_event = {"ts": "2026-01-01T00:00:00Z", "type": "decision_made",
+    def test_decision_made_events_are_audit_only_and_idempotent(self, repo):
+        decision_event = {"schema_version": 2, "ts": "2026-01-01T00:00:00Z", "type": "decision_made",
                           "event_id": "decision-001", "tasks_created": 0}
         append_ndjson(repo.root / "logs" / "events.ndjson", [decision_event])
         knowledge: dict = {}
@@ -163,7 +163,9 @@ class TestEventProcessor:
         meta = seed_meta(repo)
 
         _, _, _, meta = process_events(repo, knowledge, habits, progress, meta)
-        assert "decision-001" not in meta.get("processed_event_ids", [])
+        assert "decision-001" in meta.get("processed_event_ids", [])
+        assert knowledge == {}
+        assert habits == {}
 
     def test_derived_assessment_summary_generated(self, repo):
         seed_events(repo, [make_event("e1", 0.9, ["vision-services"])])
