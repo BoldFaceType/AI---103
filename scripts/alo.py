@@ -10,7 +10,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).parent))
 
-CONCEPTS = ["vision-services", "language-services", "search-services", "responsible-ai"]
+SCHEMA_VERSION = 2
+LEGACY_CONCEPTS = ["vision-services", "language-services", "search-services", "responsible-ai"]
+AI103_CONCEPTS = ["PM", "GA", "CV", "TA", "IE"]
+CONCEPTS = LEGACY_CONCEPTS + AI103_CONCEPTS
 
 
 def utc_now() -> str:
@@ -32,8 +35,10 @@ def cmd_status(_args: argparse.Namespace) -> None:
     print(f"\n=== Learning Policy ===\n  remediation threshold: {remediation_threshold:.0%}")
 
     print("\n=== Knowledge Map ===")
-    for concept in CONCEPTS:
-        v = km.get(concept, {"mastery": 0.0, "confidence": 0.0})
+    display_map = km.get("domains", km)
+    display_concepts = AI103_CONCEPTS if "domains" in km else LEGACY_CONCEPTS
+    for concept in display_concepts:
+        v = display_map.get(concept, {"mastery": 0.0, "confidence": 0.0})
         mastery = v["mastery"]
         filled = int(mastery * 10)
         bar = "#" * filled + "." * (10 - filled)
@@ -65,6 +70,7 @@ def cmd_log(args: argparse.Namespace) -> None:
 
     event_id = args.id or f"quiz-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
     event = {
+        "schema_version": SCHEMA_VERSION,
         "ts": utc_now(),
         "type": "quiz_completed",
         "event_id": event_id,

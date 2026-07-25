@@ -18,6 +18,21 @@ from validators import (
 
 
 DEFAULT_REMEDIATION_THRESHOLD = 0.8
+AI103_SCHEMA_VERSION = 2
+AI103_DOMAINS = ("PM", "GA", "CV", "TA", "IE")
+LEGACY_CONCEPT_MAPPING = {
+    "vision-services": ["CV"],
+    "language-services": ["TA", "IE"],
+    "search-services": ["GA", "IE"],
+    "responsible-ai": ["PM"],
+}
+AI103_OBJECTIVES = {
+    "PM": {"weight": 0.275, "competency_ids": [f"PM-{index:02d}" for index in range(1, 17)]},
+    "GA": {"weight": 0.325, "competency_ids": [f"GA-{index:02d}" for index in range(1, 17)]},
+    "CV": {"weight": 0.133, "competency_ids": [f"CV-{index:02d}" for index in range(1, 17)]},
+    "TA": {"weight": 0.133, "competency_ids": [f"TA-{index:02d}" for index in range(1, 9)]},
+    "IE": {"weight": 0.134, "competency_ids": [f"IE-{index:02d}" for index in range(1, 9)]},
+}
 
 
 class StateRepository:
@@ -100,6 +115,53 @@ def require_valid(label: str, errors: list[str]) -> None:
         raise ValueError(f"{label} validation failed: {joined}")
 
 
+def baseline_objectives() -> dict[str, Any]:
+    return {
+        "schema_version": AI103_SCHEMA_VERSION,
+        "exam": "AI-103",
+        "source_curriculum": "config/curriculum.ai103.json",
+        "objectives": AI103_OBJECTIVES,
+        "legacy_objective_mapping": {
+            key: {"mapped_to": value, "preservation": "legacy evidence retained; mastery is not increased"}
+            for key, value in LEGACY_CONCEPT_MAPPING.items()
+        },
+    }
+
+
+def baseline_knowledge_map() -> dict[str, Any]:
+    return {
+        "schema_version": AI103_SCHEMA_VERSION,
+        "exam": "AI-103",
+        "domains": {
+            domain_id: {"mastery": 0.0, "confidence": 0.0, "evidence_refs": []}
+            for domain_id in AI103_DOMAINS
+        },
+        "legacy_evidence": {
+            "source_schema_version": 1,
+            "concepts": {},
+            "mapping": LEGACY_CONCEPT_MAPPING,
+        },
+    }
+
+
+def objective_entries(objectives: dict[str, Any]) -> dict[str, Any]:
+    if isinstance(objectives.get("objectives"), dict):
+        return objectives["objectives"]
+    return objectives
+
+
+def knowledge_entries(knowledge: dict[str, Any]) -> dict[str, Any]:
+    if isinstance(knowledge.get("domains"), dict):
+        return knowledge["domains"]
+    return knowledge
+
+
+def event_concepts_for_knowledge(knowledge: dict[str, Any], concept: str) -> list[str]:
+    if isinstance(knowledge.get("domains"), dict):
+        return LEGACY_CONCEPT_MAPPING.get(concept, [concept])
+    return [concept]
+
+
 def bootstrap_files(repo: StateRepository) -> list[Path]:
     files: dict[Path, Any] = {
         repo.root / "config" / "profile.user.json": {
@@ -110,21 +172,11 @@ def bootstrap_files(repo: StateRepository) -> list[Path]:
                 "default_session_minutes": 45,
             },
         },
-        repo.root / "config" / "objectives.ai103.json": {
-            "vision-services": {"weight": 0.25},
-            "language-services": {"weight": 0.25},
-            "search-services": {"weight": 0.25},
-            "responsible-ai": {"weight": 0.25},
-        },
+        repo.root / "config" / "objectives.ai103.json": baseline_objectives(),
         repo.root / "config" / "learning-policy.json": {
             "remediation_threshold": DEFAULT_REMEDIATION_THRESHOLD,
         },
-        repo.root / "state" / "learner" / "knowledge-map.json": {
-            "vision-services": {"mastery": 0.0, "confidence": 0.0},
-            "language-services": {"mastery": 0.0, "confidence": 0.0},
-            "search-services": {"mastery": 0.0, "confidence": 0.0},
-            "responsible-ai": {"mastery": 0.0, "confidence": 0.0},
-        },
+        repo.root / "state" / "learner" / "knowledge-map.json": baseline_knowledge_map(),
         repo.root / "state" / "learner" / "habits.json": {
             "quiz_count": 0,
             "last_quiz_ts": None,
@@ -190,19 +242,24 @@ def apply_quiz_event(
 ) -> dict[str, Any]:
     score = float(event.get("score", 0.0))
     for concept in event.get("concepts", []):
-        current = knowledge.get(concept, {"mastery": 0.0, "confidence": 0.0})
-        mastery = float(current.get("mastery", 0.0))
-        confidence = float(current.get("confidence", 0.0))
-        if score >= remediation_threshold:
-            mastery = min(1.0, mastery + 0.1)
-            confidence = min(1.0, confidence + 0.1)
-        else:
-            mastery = max(0.0, mastery - 0.05)
-            confidence = max(0.0, confidence - 0.05)
-        knowledge[concept] = {
-            "mastery": round(mastery, 3),
-            "confidence": round(confidence, 3),
-        }
+        for target in event_concepts_for_knowledge(knowledge, concept):
+            entries = knowledge_entries(knowledge)
+            current = entries.get(target, {"mastery": 0.0, "confidence": 0.0, "evidence_refs": []})
+            mastery = float(current.get("mastery", 0.0))
+            confidence = float(current.get("confidence", 0.0))
+            if score >= remediation_threshold:
+                mastery = min(1.0, mastery + 0.1)
+                confidence = min(1.0, confidence + 0.1)
+            else:
+                mastery = max(0.0, mastery - 0.05)
+                confidence = max(0.0, confidence - 0.05)
+            updated = {
+                "mastery": round(mastery, 3),
+                "confidence": round(confidence, 3),
+            }
+            if "evidence_refs" in current:
+                updated["evidence_refs"] = sorted(set(current.get("evidence_refs", []) + [event.get("event_id", "")]))
+            entries[target] = updated
     habits["quiz_count"] = int(habits.get("quiz_count", 0)) + 1
     habits["last_quiz_ts"] = event.get("ts")
     return knowledge
@@ -242,6 +299,7 @@ def build_task(concept: str, objective_weight: float) -> dict[str, Any]:
     timestamp = utc_now()
     slug = concept.replace(" ", "-")
     return {
+        "schema_version": AI103_SCHEMA_VERSION,
         "id": f"task-{slug}-{timestamp.replace(':', '').replace('-', '')}",
         "type": "quiz",
         "objective_ids": [concept],
@@ -263,12 +321,13 @@ def generate_tasks(
     tracked_objectives = {objective for task in existing for objective in task.get("objective_ids", [])}
     available_slots = max(0, max_new_tasks - len(existing))
     candidates = []
-    for concept, metrics in knowledge.items():
+    objective_map = objective_entries(objectives)
+    for concept, metrics in knowledge_entries(knowledge).items():
         if metrics.get("mastery", 0.0) >= remediation_threshold:
             continue
         if concept in tracked_objectives:
             continue
-        candidates.append((concept, objectives.get(concept, {}).get("weight", 0.0)))
+        candidates.append((concept, objective_map.get(concept, {}).get("weight", 0.0)))
     candidates.sort(key=lambda item: item[1], reverse=True)
     return [build_task(concept, weight) for concept, weight in candidates[:available_slots]]
 
@@ -282,6 +341,7 @@ def write_tasks(repo: StateRepository, tasks: list[dict[str, Any]]) -> None:
 
 def build_snapshot(knowledge: dict[str, Any], habits: dict[str, Any], repo: StateRepository) -> dict[str, Any]:
     return {
+        "schema_version": AI103_SCHEMA_VERSION,
         "timestamp": utc_now(),
         "knowledge": knowledge,
         "habits": habits,
@@ -324,6 +384,7 @@ def run_once() -> None:
 
     repo.append_event(
         {
+            "schema_version": AI103_SCHEMA_VERSION,
             "ts": utc_now(),
             "type": "decision_made",
             "event_id": f"decision-{snapshot['timestamp']}",

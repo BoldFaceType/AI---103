@@ -71,6 +71,7 @@ def test_alo_log_appends_event_and_rejects_invalid_score(tmp_path, monkeypatch, 
         {
             "concepts": ["search-services"],
             "event_id": "quiz-1",
+            "schema_version": 2,
             "score": 0.75,
             "ts": events[0]["ts"],
             "type": "quiz_completed",
@@ -169,7 +170,7 @@ def test_repository_methods_bootstrap_run_once_and_initialize(tmp_path, monkeypa
     orchestrator.initialize()
     repo = orchestrator.StateRepository(tmp_path)
     assert repo.load_profile()["primary_goal"] == "Pass AI-103"
-    assert repo.load_objectives()["vision-services"]["weight"] == 0.25
+    assert repo.load_objectives()["objectives"]["PM"]["weight"] == 0.275
     assert repo.load_habits()["quiz_count"] == 0
     assert repo.load_progress()["percentComplete"] == 0.0
     assert repo.load_meta()["processed_event_ids"] == []
@@ -185,7 +186,9 @@ def test_repository_methods_bootstrap_run_once_and_initialize(tmp_path, monkeypa
     )
     orchestrator.run_once()
 
-    assert repo.load_knowledge_map()["language-services"]["mastery"] == 0.1
+    knowledge_domains = repo.load_knowledge_map()["domains"]
+    assert knowledge_domains["TA"]["mastery"] == 0.1
+    assert knowledge_domains["IE"]["mastery"] == 0.1
     assert repo.load_habits()["quiz_count"] == 2
     assert "quiz-extra" in repo.load_meta()["processed_event_ids"]
     assert repo.list_todo_tasks()

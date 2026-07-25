@@ -1,0 +1,14 @@
+{
+  "language-services": {
+    "weight": 0.25
+  },
+  "responsible-ai": {
+    "weight": 0.25
+  },
+  "search-services": {
+    "weight": 0.25
+  },
+  "vision-services": {
+    "weight": 0.25
+  }
+}
