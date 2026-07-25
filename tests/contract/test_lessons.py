@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 from datetime import date
 from pathlib import Path
@@ -18,6 +19,10 @@ SOURCE_REGISTRY = ROOT / "content" / "sources" / "ai103-source-registry.json"
 
 def validate(path: Path, today: date = date(2026, 7, 25)):
     return validate_lesson_file(path, CURRICULUM, SOURCE_REGISTRY, today=today)
+
+
+def pm_lessons() -> list[Path]:
+    return sorted((ROOT / "content" / "lessons" / "ai103" / "pm").glob("PM-*.md"))
 
 
 def test_template_satisfies_lesson_contract():
@@ -88,3 +93,38 @@ def test_answer_rubric_data_must_be_separate_json(tmp_path):
     errors = validate(broken)
 
     assert any(error.section == "Answer Rubric Data" and "separate JSON" in error.message for error in errors)
+
+
+def test_pm_lessons_cover_all_pm_competencies_and_pass_contract():
+    expected = {f"PM-{index:02d}" for index in range(1, 17)}
+    covered: set[str] = set()
+    lessons = pm_lessons()
+
+    assert [path.stem for path in lessons] == [f"PM-{index:02d}" for index in range(1, 9)]
+    for path in lessons:
+        errors = validate(path)
+        assert [error.format() for error in errors] == []
+        covered.update(parse_lesson(path).metadata["competency_ids"])
+
+    assert covered == expected
+
+
+def test_pm_lessons_have_matching_assessment_files():
+    for path in pm_lessons():
+        lesson = parse_lesson(path)
+        for link in lesson.metadata["assessment_links"]:
+            assessment_path = ROOT / link
+            assert assessment_path.exists(), f"missing assessment for {path.name}: {link}"
+            assessment = json.loads(assessment_path.read_text(encoding="utf-8"))
+            assert assessment["lesson_id"] == lesson.metadata["lesson_id"]
+            assert set(assessment["competency_ids"]) == set(lesson.metadata["competency_ids"])
+            assert assessment["score_scale"] == "practice"
+
+
+def test_pm_lessons_include_required_t11_scenarios():
+    text = "\n".join(path.read_text(encoding="utf-8") for path in pm_lessons()).casefold()
+
+    assert "reject" in text and "unsuitable" in text
+    assert "without creating live azure resources" in text or "before any provisioning" in text
+    assert "least-privilege" in text
+    assert "budget" in text

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import sys
@@ -12,6 +13,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 CURRICULUM_PATH = ROOT / "config" / "curriculum.ai103.json"
 SOURCE_REGISTRY_PATH = ROOT / "content" / "sources" / "ai103-source-registry.json"
+LESSON_ROOT = ROOT / "content" / "lessons" / "ai103"
 MAX_VERIFICATION_AGE_DAYS = 180
 EXPECTED_DOMAIN_COUNTS = {"PM": 16, "GA": 16, "CV": 16, "TA": 8, "IE": 8}
 ID_PATTERN = re.compile(r"^(PM|GA|CV|TA|IE)-\d{2}$")
@@ -25,7 +27,23 @@ def parse_date(value: str) -> date:
     return datetime.strptime(value, "%Y-%m-%d").replace(tzinfo=UTC).date()
 
 
-def audit(today: date | None = None) -> tuple[list[str], list[str]]:
+def lesson_competency_ids(domain: str | None = None) -> set[str]:
+    if not LESSON_ROOT.exists():
+        return set()
+    ids: set[str] = set()
+    for path in LESSON_ROOT.rglob("*.md"):
+        text = path.read_text(encoding="utf-8")
+        match = re.search(r"^---\n(.*?)\n---\n", text, flags=re.DOTALL)
+        if not match:
+            continue
+        metadata = json.loads(match.group(1))
+        for competency_id in metadata.get("competency_ids", []):
+            if domain is None or str(competency_id).startswith(f"{domain}-"):
+                ids.add(str(competency_id))
+    return ids
+
+
+def audit(today: date | None = None, domain: str | None = None) -> tuple[list[str], list[str]]:
     today = today or datetime.now(UTC).date()
     errors: list[str] = []
     report: list[str] = []
@@ -63,16 +81,16 @@ def audit(today: date | None = None) -> tuple[list[str], list[str]]:
         errors.append("primary_source.normalized_source_hash must be a lowercase SHA-256 hex string")
 
     domains = curriculum.get("domains", [])
-    domain_ids = [domain.get("id") for domain in domains]
+    domain_ids = [domain_record.get("id") for domain_record in domains]
     if set(domain_ids) != set(EXPECTED_DOMAIN_COUNTS):
         errors.append("curriculum domains must be PM, GA, CV, TA, and IE")
 
-    weight_total = round(sum(float(domain.get("scheduler_weight", 0)) for domain in domains), 3)
+    weight_total = round(sum(float(domain_record.get("scheduler_weight", 0)) for domain_record in domains), 3)
     if weight_total != 1.0:
         errors.append(f"scheduler weights must total 1.0; got {weight_total}")
-    for domain in domains:
-        if "official_range" not in domain:
-            errors.append(f"domain {domain.get('id')} missing official_range")
+    for domain_record in domains:
+        if "official_range" not in domain_record:
+            errors.append(f"domain {domain_record.get('id')} missing official_range")
 
     competencies = curriculum.get("competencies", [])
     ids = [item.get("id") for item in competencies]
@@ -82,24 +100,30 @@ def audit(today: date | None = None) -> tuple[list[str], list[str]]:
 
     for item in competencies:
         competency_id = item.get("id", "")
-        domain = item.get("domain", "")
+        competency_domain = item.get("domain", "")
         if not ID_PATTERN.fullmatch(str(competency_id)):
             errors.append(f"invalid competency id: {competency_id}")
-        if domain not in EXPECTED_DOMAIN_COUNTS:
-            errors.append(f"competency {competency_id} has invalid domain: {domain}")
+        if competency_domain not in EXPECTED_DOMAIN_COUNTS:
+            errors.append(f"competency {competency_id} has invalid domain: {competency_domain}")
         if not str(item.get("summary", "")).strip():
             errors.append(f"competency {competency_id} missing summary")
         if not str(item.get("source_section", "")).strip():
             errors.append(f"competency {competency_id} missing source_section")
 
     counts = Counter(item.get("domain") for item in competencies)
-    for domain, expected_count in EXPECTED_DOMAIN_COUNTS.items():
-        actual_count = counts.get(domain, 0)
+    for expected_domain, expected_count in EXPECTED_DOMAIN_COUNTS.items():
+        actual_count = counts.get(expected_domain, 0)
         if actual_count != expected_count:
-            errors.append(f"domain {domain} expected {expected_count} competencies; got {actual_count}")
+            errors.append(f"domain {expected_domain} expected {expected_count} competencies; got {actual_count}")
 
     if len(competencies) != source_registry.get("competency_count"):
         errors.append("source registry competency_count does not match curriculum")
+
+    domain_filter = domain
+    if domain_filter and domain_filter not in EXPECTED_DOMAIN_COUNTS:
+        errors.append(f"unknown domain: {domain_filter}")
+    expected_lesson_ids = {item["id"] for item in competencies if domain_filter is None or item.get("domain") == domain_filter}
+    covered_lesson_ids = lesson_competency_ids(domain_filter)
 
     report.append("# AI-103 Curriculum Audit")
     report.append("")
@@ -111,12 +135,23 @@ def audit(today: date | None = None) -> tuple[list[str], list[str]]:
     report.append(f"Scheduler weight total: {weight_total:.3f}")
     report.append("")
     report.append("## Domain coverage")
-    for domain in domains:
-        domain_id = domain["id"]
+    for domain_record in domains:
+        domain_id = domain_record["id"]
+        if domain_filter and domain_id != domain_filter:
+            continue
         report.append(
             f"- {domain_id}: {counts.get(domain_id, 0)} competencies, "
-            f"range {domain['official_range']}, weight {domain['scheduler_weight']:.3f}"
+            f"range {domain_record['official_range']}, weight {domain_record['scheduler_weight']:.3f}"
         )
+    report.append("")
+    report.append("## Lesson coverage")
+    report.append(f"- Covered competencies: {len(covered_lesson_ids)}/{len(expected_lesson_ids)}")
+    if domain_filter:
+        missing = sorted(expected_lesson_ids - covered_lesson_ids)
+        report.append(f"- Domain filter: {domain_filter}")
+        report.append(f"- Missing lesson mappings: {', '.join(missing) if missing else 'none'}")
+        if missing:
+            errors.append(f"domain {domain_filter} missing lesson mappings: {', '.join(missing)}")
     report.append("")
     report.append("## Implementation gaps")
     report.append("- Lesson files: pending T10-T15")
@@ -126,8 +161,15 @@ def audit(today: date | None = None) -> tuple[list[str], list[str]]:
     return errors, report
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Audit AI-103 curriculum and lesson coverage.")
+    parser.add_argument("--domain", choices=sorted(EXPECTED_DOMAIN_COUNTS), help="Optional domain filter, e.g. PM")
+    return parser.parse_args()
+
+
 def main() -> int:
-    errors, report = audit()
+    args = parse_args()
+    errors, report = audit(domain=args.domain)
     print("\n".join(report))
     if errors:
         print("\n## Errors", file=sys.stderr)
