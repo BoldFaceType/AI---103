@@ -4,7 +4,7 @@ Status: Ready for implementation
 Created: 2026-07-24
 Repository: `BoldFaceType/AI---103`
 Repository root: `C:\Dev\projects\AI---103`
-Baseline commit: `5642d34121ade7e3ba3f833e98be7f806035d036`
+Baseline commit: `023d91c2d3946d0cb7c90a67eccb3fdb8ccc21c0`
 Target credential: Microsoft Certified: Azure AI Apps and Agents Developer Associate
 Exam source baseline: AI-103 skills measured as of 2026-04-16
 Intended executor: a weaker coding model working one task at a time
