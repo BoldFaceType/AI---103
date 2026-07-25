@@ -1,0 +1,146 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - "agent/**"
+  workflow_dispatch:
+    inputs:
+      run_live_azure:
+        description: "Run protected live Azure tests"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  offline:
+    name: Offline quality gates (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --locked --dev
+
+      - name: Prepare reports directory
+        run: New-Item -ItemType Directory -Force -Path reports | Out-Null
+
+      - name: Ruff
+        run: uv run ruff check .
+
+      - name: Curriculum audit
+        run: uv run python -m json.tool config/objectives.ai103.json > reports/curriculum-objectives-${{ runner.os }}.json
+
+      - name: Offline tests and coverage
+        run: >
+          uv run pytest -m "not live_azure"
+          --cov=scripts
+          --cov=src
+          --cov-fail-under=85
+          --cov-report=xml:reports/coverage-${{ runner.os }}.xml
+          --junitxml=reports/pytest-${{ runner.os }}.xml
+
+      - name: Upload quality reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-reports-${{ runner.os }}
+          path: reports/
+          if-no-files-found: error
+
+      - name: Prune uv cache
+        if: always()
+        run: uv cache prune --ci
+
+  live-azure:
+    name: Protected live Azure tests
+    runs-on: ubuntu-latest
+    needs: offline
+    if: github.event_name == 'workflow_dispatch' && inputs.run_live_azure
+    environment:
+      name: live-azure
+    env:
+      RUN_LIVE_AZURE: "1"
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+
+      - name: Install dependencies
+        run: uv sync --locked --dev
+
+      - name: Verify live Azure approval and secrets
+        run: |
+          $required = @(
+            "AZURE_TENANT_ID",
+            "AZURE_CLIENT_ID",
+            "AZURE_CLIENT_SECRET",
+            "AZURE_SUBSCRIPTION_ID"
+          )
+          foreach ($name in $required) {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
+              throw "$name is required for live Azure tests."
+            }
+          }
+          if ($env:RUN_LIVE_AZURE -ne "1") {
+            throw "RUN_LIVE_AZURE=1 is required for live Azure tests."
+          }
+
+      - name: Prepare reports directory
+        run: New-Item -ItemType Directory -Force -Path reports | Out-Null
+
+      - name: Live Azure tests
+        run: |
+          uv run pytest -m live_azure --junitxml=reports/pytest-live-azure.xml
+          if ($LASTEXITCODE -eq 5) {
+            "No live Azure tests are present yet."
+            exit 0
+          }
+          exit $LASTEXITCODE
+
+      - name: Upload live reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-azure-reports
+          path: reports/
+          if-no-files-found: warn
