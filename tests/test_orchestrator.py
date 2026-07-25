@@ -237,6 +237,29 @@ class TestPlanner:
         tasks = generate_tasks(repo, knowledge, objectives, max_new_tasks=1)
         assert tasks[0]["objective_ids"] == ["responsible-ai"]
 
+    def test_ai103_state_uses_deterministic_learning_planner(self, repo):
+        knowledge = {
+            "schema_version": 2,
+            "domains": {
+                "PM": {"mastery": 0.2, "confidence": 0.2},
+                "GA": {"mastery": 0.1, "confidence": 0.1},
+            },
+        }
+        objectives = {
+            "schema_version": 2,
+            "objectives": {
+                "PM": {"weight": 0.275, "competency_ids": ["PM-01"]},
+                "GA": {"weight": 0.325, "competency_ids": ["GA-01"]},
+            },
+        }
+
+        tasks = generate_tasks(repo, knowledge, objectives, max_new_tasks=3)
+
+        assert tasks
+        assert tasks[0]["source"] == "planner"
+        assert tasks[0]["objective_ids"] == ["GA-01"]
+        assert {task["type"] for task in tasks} <= {"lesson", "lab", "quiz", "self_explanation", "review"}
+
 
 # ---------------------------------------------------------------------------
 # SessionSnapshot

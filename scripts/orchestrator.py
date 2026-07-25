@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +17,10 @@ from validators import (
     validate_profile,
     validate_task,
 )
+
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
 
 DEFAULT_REMEDIATION_THRESHOLD = 0.8
@@ -210,6 +216,7 @@ def bootstrap_files(repo: StateRepository) -> list[Path]:
             events_path,
             [
                 {
+                    "schema_version": AI103_SCHEMA_VERSION,
                     "ts": utc_now(),
                     "type": "quiz_completed",
                     "event_id": "seed-quiz-001",
@@ -318,6 +325,22 @@ def generate_tasks(
     remediation_threshold: float = DEFAULT_REMEDIATION_THRESHOLD,
 ) -> list[dict[str, Any]]:
     existing = [repo.load_task(path) for path in repo.list_todo_tasks()]
+    if isinstance(knowledge.get("domains"), dict) and isinstance(objectives.get("objectives"), dict):
+        available_slots = max(0, max_new_tasks - len(existing))
+        if available_slots == 0:
+            return []
+        from ai103.learning.planner import plan_tasks
+
+        return plan_tasks(
+            knowledge_entries(knowledge),
+            objective_entries(objectives),
+            existing,
+            today=datetime.now(UTC).date(),
+            seed=0,
+            max_tasks=available_slots,
+            remediation_threshold=remediation_threshold,
+        )
+
     tracked_objectives = {objective for task in existing for objective in task.get("objective_ids", [])}
     available_slots = max(0, max_new_tasks - len(existing))
     candidates = []
