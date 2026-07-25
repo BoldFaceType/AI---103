@@ -12,10 +12,19 @@ import orchestrator
 import state_utils
 from merge_utils import merge_feedback, merge_profile
 from state_utils import append_audit, append_ndjson, file_sha256, load_json, relative_key, save_json
-from validators import validate_event, validate_knowledge_map, validate_objectives, validate_path, validate_profile, validate_task
+from validators import (
+    validate_event,
+    validate_knowledge_map,
+    validate_learning_policy,
+    validate_objectives,
+    validate_path,
+    validate_profile,
+    validate_task,
+)
 
 
 def write_runtime_state(root: Path) -> None:
+    save_json(root / "config" / "learning-policy.json", {"remediation_threshold": 0.8})
     save_json(
         root / "state" / "learner" / "knowledge-map.json",
         {
@@ -46,6 +55,7 @@ def test_alo_status_prints_known_and_default_concepts(tmp_path, monkeypatch, cap
     alo.cmd_status(argparse.Namespace())
 
     output = capsys.readouterr().out
+    assert "remediation threshold: 80%" in output
     assert "vision-services" in output
     assert "responsible-ai" in output
     assert "task-vision" not in output
@@ -92,6 +102,7 @@ def test_alo_parser_and_delegating_commands(monkeypatch, capsys):
 
 def test_validators_accept_valid_shapes_and_report_invalid_shapes(tmp_path):
     assert validate_profile({"name": "A", "primary_goal": "Pass", "preferences": {}}) == []
+    assert validate_learning_policy({"remediation_threshold": 0.8}) == []
     assert validate_objectives({"vision": {"weight": 0.2}}) == []
     assert validate_knowledge_map({"vision": {"mastery": 0.1, "confidence": 1.0}}) == []
     assert validate_task(
@@ -108,6 +119,9 @@ def test_validators_accept_valid_shapes_and_report_invalid_shapes(tmp_path):
     assert validate_event({"ts": "2026-01-01T00:00:00Z", "type": "quiz_completed", "event_id": "e1", "score": 1, "concepts": ["vision"]}) == []
 
     assert "profile.name must be a non-empty string" in validate_profile({"name": "", "primary_goal": "", "preferences": []})
+    assert "learning_policy.remediation_threshold must be greater than 0 and at most 1" in validate_learning_policy(
+        {"remediation_threshold": 0}
+    )
     assert validate_objectives({}) == ["objectives must be a non-empty object"]
     assert "objective ids must be non-empty strings" in validate_objectives({"": {"weight": 1}})
     assert "objective 'bad' must map to an object" in validate_objectives({"bad": []})
@@ -120,6 +134,7 @@ def test_validators_accept_valid_shapes_and_report_invalid_shapes(tmp_path):
     assert "quiz_completed.concepts must be a non-empty list" in validate_event({"type": "quiz_completed", "score": 0.5, "ts": "now", "event_id": "e"})
 
     assert validate_path(Path("profile.user.json"), {"name": "A", "primary_goal": "Pass"}) == []
+    assert validate_path(Path("learning-policy.json"), {"remediation_threshold": 0.8}) == []
     assert validate_path(Path("objectives.ai103.json"), {"vision": {"weight": 0}}) == []
     assert validate_path(Path("knowledge-map.json"), {}) == []
     assert "task missing required field 'id'" in validate_path(tmp_path / "todo" / "x.json", {})

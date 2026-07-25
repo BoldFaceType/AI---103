@@ -2,11 +2,11 @@
 
 ## Current suite
 
-`tests/test_orchestrator.py` contains 31 pytest tests covering:
+The pytest suite contains 40 tests covering:
 
 - state repository reads and writes;
 - event validation and processing;
-- score boundaries and mastery updates;
+- score boundaries, remediation thresholds, and mastery updates;
 - idempotent event handling;
 - task generation;
 - session snapshots;
@@ -14,10 +14,10 @@
 
 ## Current command
 
-When `pytest` is installed:
+From the repository root:
 
 ```powershell
-python -m pytest tests -q
+uv run pytest -m "not live_azure" -q
 ```
 
 The Makefile equivalent is:
@@ -26,7 +26,7 @@ The Makefile equivalent is:
 make test
 ```
 
-On the current Windows environment, project-scoped pytest setup is still pending. Do not report the suite as passing unless the command actually completes successfully.
+Do not report the suite as passing unless the command actually completes successfully.
 
 ## Read-only smoke check
 
@@ -40,7 +40,7 @@ It confirms imports and state reads, but it does not replace the test suite.
 
 ## Planned test policy
 
-T01 and T02 of the completion manifest introduce `uv`, pytest configuration, markers, and CI. The default suite must remain offline and exclude `live_azure`. Live tests require explicit credentials, cost approval, preflight checks, and teardown verification.
+The default suite must remain offline and exclude `live_azure`. Live tests require explicit credentials, cost approval, preflight checks, and teardown verification.
 
 Target offline command:
 

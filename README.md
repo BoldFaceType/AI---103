@@ -12,9 +12,9 @@ Implemented today:
 - Mastery and confidence tracking
 - Quiz logging for Vision, Language, Search, and Responsible AI
 - Idempotent processing of `quiz_completed` events
-- Automatic study tasks below 50% mastery
+- Automatic remediation tasks below the configured passing threshold, currently 80% mastery
 - Learner snapshots, audit records, and SHA-256 metadata
-- 31 pytest tests in `tests/test_orchestrator.py`
+- 40 pytest tests
 
 Planned, not yet implemented:
 
@@ -23,7 +23,7 @@ Planned, not yet implemented:
 - Microsoft Foundry model-assisted tutoring
 - Offline-first and live Azure labs
 - Vision, synthetic medical-text, and vector/hybrid-search scripts
-- Project-scoped Python and pytest configuration
+- Current official AI-103 curriculum registry
 
 See the [completion Task Manifest](docs/plans/2026-07-24-ai-103-completion-task-manifest.md) for the ordered implementation plan.
 
@@ -60,14 +60,13 @@ These legacy keys remain supported until the manifest's tested, idempotent migra
 | Score | Effect |
 |---|---|
 | `>= 0.80` | mastery `+0.10`, confidence `+0.10` |
-| `> 0.50` and `< 0.80` | mastery `+0.02` |
-| `<= 0.50` | mastery `-0.05`, confidence `-0.05` |
+| `< 0.80` | mastery `-0.05`, confidence `-0.05`, remediation remains due |
 
-Tasks are generated for concepts whose mastery is below `0.50`.
+Tasks are generated for concepts whose mastery is below the configured remediation threshold in `config/learning-policy.json`. The default is `0.80`, so anything under 80% remains in remediation.
 
 ## Project layout
 
-- `config/` — learner profile and objective weights
+- `config/` — learner profile, objective weights, and learning policy thresholds
 - `content/` — notes, prompts, and future lessons
 - `docs/` — architecture, setup, development, testing, and implementation plans
 - `logs/` — append-only NDJSON event stream

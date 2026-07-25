@@ -37,6 +37,16 @@ def validate_objectives(data: dict[str, Any]) -> list[str]:
     return errors
 
 
+def validate_learning_policy(data: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(data, dict):
+        return ["learning policy must be an object"]
+    threshold = data.get("remediation_threshold")
+    if not _is_number(threshold) or threshold <= 0 or threshold > 1:
+        errors.append("learning_policy.remediation_threshold must be greater than 0 and at most 1")
+    return errors
+
+
 def validate_knowledge_map(data: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     if not isinstance(data, dict):
@@ -87,6 +97,8 @@ def validate_path(path: Path, data: Any) -> list[str]:
         return validate_profile(data)
     if name == "objectives.ai103.json":
         return validate_objectives(data)
+    if name == "learning-policy.json":
+        return validate_learning_policy(data)
     if name == "knowledge-map.json":
         return validate_knowledge_map(data)
     if name.startswith("task-") or path.parent.name in {"todo", "in-progress", "done"}:

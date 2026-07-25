@@ -6,7 +6,18 @@ from typing import Any
 
 from merge_utils import merge_progress
 from state_utils import ROOT, append_audit, append_ndjson, load_json, load_ndjson, relative_key, save_json, update_vmeta, utc_now
-from validators import validate_event, validate_knowledge_map, validate_objectives, validate_path, validate_profile, validate_task
+from validators import (
+    validate_event,
+    validate_knowledge_map,
+    validate_learning_policy,
+    validate_objectives,
+    validate_path,
+    validate_profile,
+    validate_task,
+)
+
+
+DEFAULT_REMEDIATION_THRESHOLD = 0.8
 
 
 class StateRepository:
@@ -18,6 +29,9 @@ class StateRepository:
 
     def load_objectives(self) -> dict[str, Any]:
         return load_json(self.root / "config" / "objectives.ai103.json")
+
+    def load_learning_policy(self) -> dict[str, Any]:
+        return load_json(self.root / "config" / "learning-policy.json", {"remediation_threshold": DEFAULT_REMEDIATION_THRESHOLD})
 
     def load_knowledge_map(self) -> dict[str, Any]:
         return load_json(self.root / "state" / "learner" / "knowledge-map.json")
@@ -102,6 +116,9 @@ def bootstrap_files(repo: StateRepository) -> list[Path]:
             "search-services": {"weight": 0.25},
             "responsible-ai": {"weight": 0.25},
         },
+        repo.root / "config" / "learning-policy.json": {
+            "remediation_threshold": DEFAULT_REMEDIATION_THRESHOLD,
+        },
         repo.root / "state" / "learner" / "knowledge-map.json": {
             "vision-services": {"mastery": 0.0, "confidence": 0.0},
             "language-services": {"mastery": 0.0, "confidence": 0.0},
@@ -165,20 +182,23 @@ def bootstrap_files(repo: StateRepository) -> list[Path]:
     return created
 
 
-def apply_quiz_event(knowledge: dict[str, Any], habits: dict[str, Any], event: dict[str, Any]) -> dict[str, Any]:
+def apply_quiz_event(
+    knowledge: dict[str, Any],
+    habits: dict[str, Any],
+    event: dict[str, Any],
+    remediation_threshold: float = DEFAULT_REMEDIATION_THRESHOLD,
+) -> dict[str, Any]:
     score = float(event.get("score", 0.0))
     for concept in event.get("concepts", []):
         current = knowledge.get(concept, {"mastery": 0.0, "confidence": 0.0})
         mastery = float(current.get("mastery", 0.0))
         confidence = float(current.get("confidence", 0.0))
-        if score >= 0.8:
+        if score >= remediation_threshold:
             mastery = min(1.0, mastery + 0.1)
             confidence = min(1.0, confidence + 0.1)
-        elif score <= 0.5:
+        else:
             mastery = max(0.0, mastery - 0.05)
             confidence = max(0.0, confidence - 0.05)
-        else:
-            mastery = min(1.0, mastery + 0.02)
         knowledge[concept] = {
             "mastery": round(mastery, 3),
             "confidence": round(confidence, 3),
@@ -188,7 +208,14 @@ def apply_quiz_event(knowledge: dict[str, Any], habits: dict[str, Any], event: d
     return knowledge
 
 
-def process_events(repo: StateRepository, knowledge: dict[str, Any], habits: dict[str, Any], progress: dict[str, Any], meta: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
+def process_events(
+    repo: StateRepository,
+    knowledge: dict[str, Any],
+    habits: dict[str, Any],
+    progress: dict[str, Any],
+    meta: dict[str, Any],
+    remediation_threshold: float = DEFAULT_REMEDIATION_THRESHOLD,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
     processed_event_ids = set(meta.get("processed_event_ids", []))
     incoming_events: list[dict[str, Any]] = []
     for event in repo.load_events():
@@ -200,7 +227,7 @@ def process_events(repo: StateRepository, knowledge: dict[str, Any], habits: dic
             continue
         if event.get("type") not in {"quiz_completed"}:
             continue
-        knowledge = apply_quiz_event(knowledge, habits, event)
+        knowledge = apply_quiz_event(knowledge, habits, event, remediation_threshold)
         incoming_events.append(event)
         processed_event_ids.add(event["event_id"])
         meta["last_processed_ts"] = event.get("ts")
@@ -225,13 +252,19 @@ def build_task(concept: str, objective_weight: float) -> dict[str, Any]:
     }
 
 
-def generate_tasks(repo: StateRepository, knowledge: dict[str, Any], objectives: dict[str, Any], max_new_tasks: int = 3) -> list[dict[str, Any]]:
+def generate_tasks(
+    repo: StateRepository,
+    knowledge: dict[str, Any],
+    objectives: dict[str, Any],
+    max_new_tasks: int = 3,
+    remediation_threshold: float = DEFAULT_REMEDIATION_THRESHOLD,
+) -> list[dict[str, Any]]:
     existing = [repo.load_task(path) for path in repo.list_todo_tasks()]
     tracked_objectives = {objective for task in existing for objective in task.get("objective_ids", [])}
     available_slots = max(0, max_new_tasks - len(existing))
     candidates = []
     for concept, metrics in knowledge.items():
-        if metrics.get("mastery", 0.0) >= 0.5:
+        if metrics.get("mastery", 0.0) >= remediation_threshold:
             continue
         if concept in tracked_objectives:
             continue
@@ -262,6 +295,7 @@ def run_once() -> None:
     repo = StateRepository(ROOT)
     profile = repo.load_profile()
     objectives = repo.load_objectives()
+    learning_policy = repo.load_learning_policy()
     knowledge = repo.load_knowledge_map()
     habits = repo.load_habits()
     progress = repo.load_progress()
@@ -269,9 +303,11 @@ def run_once() -> None:
 
     require_valid("profile", validate_profile(profile))
     require_valid("objectives", validate_objectives(objectives))
+    require_valid("learning-policy", validate_learning_policy(learning_policy))
     require_valid("knowledge-map", validate_knowledge_map(knowledge))
+    remediation_threshold = float(learning_policy["remediation_threshold"])
 
-    knowledge, habits, progress, meta = process_events(repo, knowledge, habits, progress, meta)
+    knowledge, habits, progress, meta = process_events(repo, knowledge, habits, progress, meta, remediation_threshold)
 
     repo.save_knowledge_map(knowledge, "orchestrator")
     repo.save_habits(habits, "orchestrator")
@@ -279,7 +315,7 @@ def run_once() -> None:
     repo.save_meta(meta, "orchestrator")
     append_audit("persist_state", "state/learner", "orchestrator", "ok", {"processed_events": len(meta.get("processed_event_ids", []))})
 
-    tasks = generate_tasks(repo, knowledge, objectives)
+    tasks = generate_tasks(repo, knowledge, objectives, remediation_threshold=remediation_threshold)
     write_tasks(repo, tasks)
 
     snapshot = build_snapshot(knowledge, habits, repo)

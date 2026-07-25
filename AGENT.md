@@ -10,7 +10,7 @@ Implemented:
 - Filesystem-as-state JSON and NDJSON persistence
 - Idempotent `quiz_completed` processing
 - Deterministic mastery and confidence updates
-- Automatic tasks below 50% mastery
+- Automatic remediation tasks below 80% mastery by default
 - Session snapshots, audit records, and SHA-256 vmeta
 
 Planned but not implemented:
@@ -61,7 +61,7 @@ One cycle:
 3. Skip event IDs already in `state/learner/meta.json`.
 4. Apply valid `quiz_completed` events.
 5. Persist learner state and progress.
-6. Generate at most three tasks for concepts below `0.50` mastery.
+6. Generate at most three tasks for concepts below the configured remediation threshold, currently `0.80` mastery.
 7. Write a timestamped session snapshot.
 8. Append a `decision_made` event, audit records, and file hashes.
 

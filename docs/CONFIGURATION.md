@@ -6,8 +6,9 @@ The current ALO needs only Python and repository files. Run commands from the re
 
 | Path | Purpose |
 |---|---|
-| `config/profile.json` | Learner profile |
+| `config/profile.user.json` | Learner profile |
 | `config/objectives.ai103.json` | Current objective weights |
+| `config/learning-policy.json` | Passing and remediation threshold policy |
 | `state/learner/*.json` | Learner state and processed-event metadata |
 | `logs/events.ndjson` | Input and decision events |
 
@@ -20,9 +21,21 @@ The current objective keys are:
 
 Do not rename these keys manually. Their replacement by the five official AI-103 domains requires the manifest's state migration.
 
+## Learning policy
+
+`config/learning-policy.json` currently defines:
+
+```json
+{
+  "remediation_threshold": 0.8
+}
+```
+
+Scores and mastery below `0.80` are considered remediation. Scores at or above `0.80` are passing.
+
 ## Runtime
 
-The source currently uses the Python standard library. Tests additionally import `pytest`, but the repository does not yet contain project-scoped dependency metadata. The completion manifest assigns that work to T01.
+The source currently uses the Python standard library. Project-scoped test and lint dependencies are managed through `uv`.
 
 ## Generated state
 

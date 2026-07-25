@@ -25,7 +25,11 @@ def cmd_status(_args: argparse.Namespace) -> None:
     km = load_json(ROOT / "state/learner/knowledge-map.json")
     habits = load_json(ROOT / "state/learner/habits.json")
     meta = load_json(ROOT / "state/learner/meta.json")
+    learning_policy = load_json(ROOT / "config/learning-policy.json")
+    remediation_threshold = float(learning_policy.get("remediation_threshold", 0.8))
     tasks = sorted((ROOT / "state/tasks/todo").glob("*.json")) if (ROOT / "state/tasks/todo").exists() else []
+
+    print(f"\n=== Learning Policy ===\n  remediation threshold: {remediation_threshold:.0%}")
 
     print("\n=== Knowledge Map ===")
     for concept in CONCEPTS:

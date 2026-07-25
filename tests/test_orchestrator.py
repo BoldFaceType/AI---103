@@ -113,17 +113,17 @@ class TestEventProcessor:
         apply_quiz_event(knowledge, habits, make_event("e1", 0.9, ["vision-services"]))
         assert knowledge["vision-services"]["mastery"] == pytest.approx(0.5, abs=0.01)
 
-    def test_low_score_decreases_mastery(self):
+    def test_below_passing_score_decreases_mastery(self):
         knowledge = {"vision-services": {"mastery": 0.4, "confidence": 0.5}}
         habits: dict = {}
-        apply_quiz_event(knowledge, habits, make_event("e1", 0.3, ["vision-services"]))
+        apply_quiz_event(knowledge, habits, make_event("e1", 0.79, ["vision-services"]))
         assert knowledge["vision-services"]["mastery"] == pytest.approx(0.35, abs=0.01)
 
-    def test_mid_score_nudges_mastery(self):
+    def test_custom_remediation_threshold_controls_passing_score(self):
         knowledge = {"vision-services": {"mastery": 0.4, "confidence": 0.5}}
         habits: dict = {}
-        apply_quiz_event(knowledge, habits, make_event("e1", 0.65, ["vision-services"]))
-        assert knowledge["vision-services"]["mastery"] == pytest.approx(0.42, abs=0.01)
+        apply_quiz_event(knowledge, habits, make_event("e1", 0.75, ["vision-services"]), remediation_threshold=0.7)
+        assert knowledge["vision-services"]["mastery"] == pytest.approx(0.5, abs=0.01)
 
     def test_mastery_capped_at_one(self):
         knowledge = {"vision-services": {"mastery": 0.95, "confidence": 0.95}}
@@ -190,7 +190,7 @@ OBJECTIVES = {
 
 class TestPlanner:
     def test_weak_concept_generates_task(self, repo):
-        knowledge = {"vision-services": {"mastery": 0.3, "confidence": 0.4}}
+        knowledge = {"vision-services": {"mastery": 0.79, "confidence": 0.4}}
         tasks = generate_tasks(repo, knowledge, OBJECTIVES)
         assert len(tasks) == 1
         assert tasks[0]["objective_ids"] == ["vision-services"]
@@ -198,6 +198,11 @@ class TestPlanner:
     def test_strong_concept_generates_no_task(self, repo):
         knowledge = {"vision-services": {"mastery": 0.8, "confidence": 0.9}}
         tasks = generate_tasks(repo, knowledge, OBJECTIVES)
+        assert tasks == []
+
+    def test_custom_remediation_threshold_controls_task_generation(self, repo):
+        knowledge = {"vision-services": {"mastery": 0.6, "confidence": 0.4}}
+        tasks = generate_tasks(repo, knowledge, OBJECTIVES, remediation_threshold=0.5)
         assert tasks == []
 
     def test_task_cap_enforced(self, repo):

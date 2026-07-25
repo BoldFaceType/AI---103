@@ -6,6 +6,7 @@ All notable project changes are recorded here.
 
 ### Documentation
 
+- Added configurable remediation threshold documentation and set passing/remediation to 80%.
 - Added the full AI-103 completion Task Manifest with 32 ordered implementation tasks.
 - Documented the current working ALO separately from planned study-system functionality.
 - Added architecture, getting-started, development, testing, and configuration guides.
@@ -19,7 +20,7 @@ All notable project changes are recorded here.
 
 - No Azure service calls, model invocation, substantive lesson corpus, or planned lab scripts have been implemented yet.
 - The current four legacy concept keys remain unchanged pending the manifest's tested migration.
-- Project-scoped pytest installation remains planned; the repository still contains 31 pytest tests.
+- Project-scoped pytest, Ruff, CI, and 40 tests are now in place.
 
 ## 2026-05-25 (session 2)
 

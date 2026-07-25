@@ -33,6 +33,7 @@ JSON + NDJSON repository state
 ## State model
 
 - `config/objectives.ai103.json` contains the current four objective weights.
+- `config/learning-policy.json` contains deterministic learning thresholds, including the remediation threshold.
 - `state/learner/knowledge-map.json` stores mastery and confidence.
 - `state/learner/habits.json` stores quiz history summaries.
 - `state/learner/progress.json` stores event-derived progress.
@@ -49,7 +50,7 @@ JSON + NDJSON repository state
 3. Ignore event IDs already present in `processed_event_ids`.
 4. Apply valid `quiz_completed` events.
 5. Merge progress and persist learner state.
-6. Generate at most three tasks for concepts below `0.50` mastery when no matching open task exists.
+6. Generate at most three tasks for concepts below the configured remediation threshold when no matching open task exists.
 7. Write a timestamped session snapshot.
 8. Append a `decision_made` event and audit metadata.
 

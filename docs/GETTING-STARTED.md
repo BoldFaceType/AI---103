@@ -24,7 +24,7 @@ Initialization creates missing baseline folders and state without replacing exis
 python scripts/alo.py status
 ```
 
-The report shows mastery, confidence, open tasks, quiz count, last quiz, and processed-event count.
+The report shows the remediation threshold, mastery, confidence, open tasks, quiz count, last quiz, and processed-event count.
 
 ## Record and process a quiz
 
@@ -47,9 +47,10 @@ Reprocessing the same event ID does not apply it twice.
 ## What to expect
 
 - Scores at or above `0.80` increase mastery and confidence by `0.10`.
-- Scores above `0.50` and below `0.80` increase mastery by `0.02`.
-- Scores at or below `0.50` reduce mastery and confidence by `0.05`.
-- Concepts below `0.50` mastery receive generated tasks when no matching open task exists.
+- Scores below `0.80` reduce mastery and confidence by `0.05`.
+- Concepts below the configured remediation threshold receive generated tasks when no matching open task exists.
+
+The remediation threshold is configured in `config/learning-policy.json`. The current default is `0.80`, so anything below 80% triggers remediation.
 
 ## Current limitation
 
