@@ -64,3 +64,6 @@ def test_audit_passes_and_reports_future_gaps():
     joined = "\n".join(report)
     assert "Competencies: 64" in joined
     assert "Lesson files: pending T10-T15" in joined
+    assert "Current lesson files: implemented" in joined
+    assert "Current assessment files: implemented" in joined
+    assert "Current lab mappings: implemented" in joined

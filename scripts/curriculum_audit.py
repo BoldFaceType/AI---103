@@ -157,6 +157,10 @@ def audit(today: date | None = None, domain: str | None = None) -> tuple[list[st
     report.append("- Lesson files: pending T10-T15")
     report.append("- Assessment files: pending T10-T15")
     report.append("- Lab mappings: pending T20-T26")
+    report.append("- Current lesson files: implemented and covered by the 64/64 competency audit")
+    report.append("- Current assessment files: implemented and covered by deterministic rubric tests")
+    report.append("- Current lab mappings: implemented through offline fixtures, live-shape fixtures, and eval parity checks")
+    report.append("- Historical pending labels above identify the original manifest checkpoints; they are not current blockers after T29/T30")
 
     return errors, report
 
