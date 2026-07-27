@@ -55,6 +55,12 @@ jobs:
       - name: Ruff
         run: uv run ruff check .
 
+      - name: Dependency check
+        run: uv run python -m pip check
+
+      - name: Secret scan
+        run: uv run python -m ai103.operations.redaction --scan .
+
       - name: Curriculum audit
         run: uv run python -m json.tool config/objectives.ai103.json > reports/curriculum-objectives-${{ runner.os }}.json
 
