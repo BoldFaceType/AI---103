@@ -31,6 +31,8 @@ def normalize_lab_output(raw: dict[str, Any]) -> NormalizedLabOutput:
         responses = dict(raw["responses"])
     elif "vision" in raw:
         responses = {"vision": dict(raw["vision"])}
+    elif "medical_text" in raw:
+        responses = {"medical_text": _normalize_medical_text(raw["medical_text"])}
     else:
         responses = {
             "search": _normalize_search(raw.get("search", {})),
@@ -193,6 +195,19 @@ def _normalize_content_understanding(raw: dict[str, Any]) -> dict[str, Any]:
 def _normalize_storage(raw: dict[str, Any]) -> dict[str, Any]:
     properties = raw.get("properties", raw)
     return {"allow_blob_public_access": properties.get("allowBlobPublicAccess", properties.get("allow_blob_public_access"))}
+
+
+def _normalize_medical_text(raw: dict[str, Any]) -> dict[str, Any]:
+    fields = dict(raw.get("structured_fields", {}))
+    if "severity" not in fields and "severity_level" in fields:
+        fields["severity"] = fields["severity_level"]
+    if "recommended_action" not in fields and "next_step" in fields:
+        fields["recommended_action"] = fields["next_step"]
+    normalized = dict(raw)
+    normalized["structured_fields"] = fields
+    if "pii" not in normalized and "redactions" in normalized:
+        normalized["pii"] = normalized["redactions"]
+    return normalized
 
 
 def _get_path(data: Any, path: tuple[str, ...]) -> Any:

@@ -1,0 +1,65 @@
+{
+  "responses": {
+    "medical_text": {
+      "redacted_markdown": "Synthetic clinical note: <redacted-synthetic-person> reports mild headache after screen-heavy study. No emergency signs reported.",
+      "pii": [
+        {
+          "type": "synthetic_patient_identifier",
+          "redacted": true
+        }
+      ],
+      "entities": [
+        {
+          "category": "symptom",
+          "text": "headache"
+        },
+        {
+          "category": "activity",
+          "text": "screen-heavy study"
+        }
+      ],
+      "topics": [
+        "triage",
+        "self-care",
+        "safety"
+      ],
+      "structured_fields": {
+        "encounter_type": "synthetic triage",
+        "symptom": "headache",
+        "severity": "mild",
+        "recommended_action": "self-care and follow-up if symptoms worsen"
+      },
+      "summary": "Synthetic note describes mild headache after screen-heavy study with no emergency signs.",
+      "tone_safety": {
+        "tone": "reassuring",
+        "urgent_risk": false,
+        "medical_advice_disclaimer": true
+      },
+      "domain_concepts": [
+        "PII redaction",
+        "entity extraction",
+        "summarization",
+        "safety triage"
+      ],
+      "service_comparison": {
+        "language": "PII, entities, topics",
+        "content_understanding": "layout and structured fields",
+        "model": "summary and safety explanation"
+      },
+      "model_metadata": {
+        "services": [
+          "Azure AI Language",
+          "Azure AI Content Understanding",
+          "Azure AI Foundry Responses API"
+        ],
+        "model": "deterministic-medical-text-fixture"
+      }
+    }
+  },
+  "resource_ids": [],
+  "cost_estimate": {
+    "currency": "USD",
+    "estimated": 0.0
+  },
+  "teardown_verified": true
+}
