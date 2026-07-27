@@ -4,6 +4,17 @@ This repository contains a working local-first Adaptive Learning Orchestrator (A
 
 ## Product status
 
+Current reconciliation as of 2026-07-27:
+
+- The canonical AI-103 learner state now uses `PM`, `GA`, `CV`, `TA`, and `IE`; legacy evidence remains recoverable and must not be fabricated into higher mastery.
+- The repository includes current AI-103 curriculum coverage, substantive lessons, deterministic assessments, the notes hub, and the grounded tutor prompt.
+- Evidence-based learning design is implemented across lessons and planning primitives: retrieval practice, spaced repetition, interleaving, elaboration, dual coding, self-explanation/Feynman technique, concrete examples, and ZPD scaffolding.
+- Offline-first labs exist for vision analysis, synthetic medical text, vector/hybrid search, agent workflows, media generation, speech translation, governance monitoring, and Search/RAG.
+- The eval runner `scripts/run_evals.py --offline` covers curriculum, lessons, assessments, tutor safety, lab parity, retrieval/RAG groundedness, agent safety, and live fixture metadata.
+- Live Azure and model execution remain explicit, guarded, and potentially billable; never imply that Azure resources, model calls, or live tests are free.
+
+The older baseline lists below are retained to preserve project history. Prefer the reconciliation list above when deciding whether functionality exists.
+
 Implemented:
 
 - `scripts/alo.py` commands: `init`, `status`, `log`, `run`

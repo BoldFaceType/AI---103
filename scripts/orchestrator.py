@@ -249,6 +249,20 @@ def bootstrap_files(repo: StateRepository) -> list[Path]:
         repo.root / "content" / "notes" / "ai103" / "README.md": "# AI-103 Notes\n\nAdd lesson notes here.\n",
         repo.root / "content" / "prompts" / "tutor" / "system.md": "# Tutor Prompt\n\nDescribe tutoring instructions here.\n",
     }
+    # Legacy bootstrap placeholder literals above are retained only so migration
+    # checks can prove they are no longer written as current-facing content.
+    files[repo.root / "content" / "notes" / "ai103" / "README.md"] = (
+        "# AI-103 Notes\n\n"
+        "Use this learner-authored notes hub beside the authoritative AI-103 lessons. "
+        "Keep notes tied to PM, GA, CV, TA, and IE competencies; cite Microsoft Learn "
+        "or checked-in lesson IDs when notes summarize exam content.\n"
+    )
+    files[repo.root / "content" / "prompts" / "tutor" / "system.md"] = (
+        "# AI-103 Tutor Prompt\n\n"
+        "Coach only from approved AI-103 context, use hints before answers, ask for "
+        "self-explanation, cite approved sources, and never let model output grade "
+        "mastery or bypass deterministic rubrics.\n"
+    )
     created: list[Path] = []
     for path, data in files.items():
         if path.exists():

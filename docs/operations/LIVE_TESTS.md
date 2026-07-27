@@ -39,3 +39,5 @@ The `live-azure` GitHub environment must require human approval before secrets a
 ## Current Status
 
 The repository currently has no live Azure tests. The protected job is present so future labs can add live checks without weakening pull-request safety.
+
+Current reconciliation as of 2026-07-27: the repository now has live-shape fixtures and live metadata evals, but the default test path remains offline and still must not deploy Azure resources or call paid services. Any future test that makes real Azure or model calls must keep the `live_azure` marker and explicit approval gate described above.

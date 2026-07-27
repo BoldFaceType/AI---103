@@ -4,6 +4,38 @@ A local-first, filesystem-as-state learning engine for Microsoft AI-103 preparat
 
 The repository currently provides a working Adaptive Learning Orchestrator (ALO). JSON state, NDJSON events, generated tasks, session snapshots, audit records, and metadata hashes form its database. The existing engine remains the foundation for the planned full AI-103 study system.
 
+## Reconciled implementation status — 2026-07-27
+
+Use this section as the current-facing status for T30 and later work. Older status notes below are retained as historical context for the first ALO baseline.
+
+Implemented now:
+
+- Canonical AI-103 domain state for `PM`, `GA`, `CV`, `TA`, and `IE`, with recoverable legacy evidence from `vision-services`, `language-services`, `search-services`, and `responsible-ai`.
+- Official AI-103 curriculum registry aligned to Microsoft Learn skills measured as of April 16, 2026: planning/management, generative AI and agents, computer vision, text analysis, and information extraction.
+- Substantive AI-103 lesson corpus, assessment rubrics, notes hub, grounded tutor prompt, tutor safety cases, and deterministic offline tutor behavior.
+- Evidence-based learning design: retrieval practice, spaced repetition, interleaving, elaboration, dual coding, self-explanation/Feynman technique, concrete examples, and ZPD scaffold levels.
+- Offline-first hands-on labs and fixtures for vision analysis, synthetic medical text extraction, vector/hybrid search, agent workflows, media generation, speech translation, governance monitoring, and Search/RAG.
+- Explicit live-mode guardrails: Azure setup guidance, cost warnings, Entra ID preference, no committed secrets, explicit live opt-in, teardown verification, and offline defaults.
+- Deterministic eval suites for curriculum freshness, pedagogy completeness, rubric determinism, tutor grounding and injection resistance, offline/live lab parity, retrieval/RAG groundedness, agent safety, and live fixture metadata.
+
+Current primary commands:
+
+```powershell
+uv run alo doctor --offline
+uv run alo status
+uv run alo lab run LAB-VISION-ANALYSIS --offline
+uv run python scripts/run_evals.py --offline
+uv run pytest -m "not live_azure" -q
+```
+
+Tested command correction: the tutor CLI uses a positional lesson ID. Use this current command shape:
+
+```powershell
+uv run alo tutor GA-01 --json
+```
+
+Live Azure or model calls are never implied to be free. Live work can spend Azure credits or paid subscription budget and must use the setup, preflight, approval, and teardown guidance in `docs/setup/` and `docs/operations/`.
+
 ## Current status
 
 Implemented today:

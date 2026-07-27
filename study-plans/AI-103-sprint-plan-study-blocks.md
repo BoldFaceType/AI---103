@@ -4,6 +4,10 @@ Status: curriculum-aligned plan; lesson and lab implementation pending
 Target: Microsoft Certified: Azure AI Apps and Agents Developer Associate
 Source baseline: official AI-103 skills measured as of 2026-04-16
 
+Implementation status as of 2026-07-27: the repository now contains the AI-103 domain registry, schema v2 learner state, substantive lessons, deterministic assessments, offline lab scripts, guarded tutor behavior, and offline evaluation suites. Older “pending” notes in this file are historical planning context; this reconciliation block is the current status baseline.
+
+Official Microsoft Learn still lists these AI-103 skill ranges for the current study guide baseline: Plan and manage an Azure AI solution 25–30%, Implement generative AI and agentic solutions 30–35%, Implement computer vision solutions 10–15%, Implement text analysis solutions 10–15%, and Implement information extraction solutions 10–15%.
+
 ## Purpose
 
 Build exam readiness through short cycles of substantive instruction, retrieval practice, hands-on work, deterministic assessment, and scheduled review. This plan replaces the repository's historical AI-102 framing.
@@ -21,6 +25,22 @@ The working Adaptive Learning Orchestrator remains the learner-state engine. Unt
 | Implement knowledge mining and information extraction solutions | 10–15% | 13.4% |
 
 Planning weights select study time only; the official ranges remain the exam source of truth.
+
+## Sprint-to-artifact matrix
+
+Each sprint block below maps to implemented lesson IDs, assessments, and at least one executable or replayable lab path. “Planned” lesson-local lab paths remain prompts for future expansion, but the executable lab IDs listed here are the current runnable baseline.
+
+| Sprint | Domain focus | Lesson IDs | Executable/replayable lab IDs and scripts |
+|---|---|---|---|
+| Sprint 0 | Tooling, baseline, safety | PM-01 through PM-08 safety and operations sections | `uv run alo doctor --offline`; `uv run python scripts/run_evals.py --offline` |
+| Sprint 1 | Plan and manage Azure AI solutions | PM-01 through PM-08 | `LAB-GOVERNANCE-MONITORING`; `scripts/labs/run_remaining_labs.py --offline` |
+| Sprint 2 | Generative AI and agentic solutions | GA-01 through GA-10 | `LAB-AGENT-WORKFLOWS`; `LAB-SEARCH-RAG`; `scripts/labs/run_agent_lab.py --offline` |
+| Sprint 3 | Computer vision | CV-01 through CV-07 | `LAB-VISION-ANALYSIS`; `LAB-MEDIA-GENERATION`; `scripts/labs/Create_VisionAnalysis_WSL.py --offline` |
+| Sprint 4 | Text analysis solutions | TA-01 through TA-06 | `LAB-MEDICAL-TEXT`; `LAB-SPEECH-TRANSLATION`; `scripts/labs/Extract_MedicalText_Clinical.py --offline` |
+| Sprint 5 | Information extraction solutions | IE-01 through IE-06 | `LAB-VECTOR-SEARCH`; `LAB-SEARCH-RAG`; `scripts/labs/Query_VectorSearch_Azure.py --offline` |
+| Sprint 6 | Interleaved review and release acceptance | PM, GA, CV, TA, IE mixed review | `uv run pytest -m "not live_azure" -q`; `uv run python scripts/run_evals.py --offline` |
+
+Assessment paths follow `content/assessments/ai103/<domain>/<lesson-id>.json`; lesson paths follow `content/lessons/ai103/<domain>/<lesson-id>.md`.
 
 ## Learning loop
 
