@@ -35,6 +35,8 @@ def normalize_lab_output(raw: dict[str, Any]) -> NormalizedLabOutput:
         responses = {"medical_text": _normalize_medical_text(raw["medical_text"])}
     elif "vector_search" in raw:
         responses = {"vector_search": dict(raw["vector_search"])}
+    elif "agents" in raw:
+        responses = {"agents": dict(raw["agents"])}
     else:
         responses = {
             "search": _normalize_search(raw.get("search", {})),

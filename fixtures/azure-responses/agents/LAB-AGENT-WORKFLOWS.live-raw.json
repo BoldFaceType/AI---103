@@ -1,0 +1,17 @@
+{
+  "agents": {
+    "single_agent": "replay-only live shape placeholder",
+    "retrieval_agent": "replay-only live shape placeholder",
+    "approval_workflow": "replay-only live shape placeholder",
+    "multi_agent": "replay-only live shape placeholder",
+    "evaluation": {
+      "trace_complete": true
+    }
+  },
+  "resource_ids": [],
+  "cost_estimate": {
+    "currency": "USD",
+    "estimated": 0.0
+  },
+  "teardown_verified": true
+}
