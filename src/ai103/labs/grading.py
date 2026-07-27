@@ -33,6 +33,8 @@ def normalize_lab_output(raw: dict[str, Any]) -> NormalizedLabOutput:
         responses = {"vision": dict(raw["vision"])}
     elif "medical_text" in raw:
         responses = {"medical_text": _normalize_medical_text(raw["medical_text"])}
+    elif "vector_search" in raw:
+        responses = {"vector_search": dict(raw["vector_search"])}
     else:
         responses = {
             "search": _normalize_search(raw.get("search", {})),
@@ -158,9 +160,7 @@ def redact_text(value: object) -> str:
     text = "" if value is None else str(value)
     text = URL_RE.sub("https://<redacted-endpoint>", text)
     text = GUID_RE.sub("<redacted-id>", text)
-    for marker in ("token", "secret", "password", "key"):
-        text = text.replace(marker, "<redacted>")
-        text = text.replace(marker.upper(), "<redacted>")
+    text = re.sub(r"(?i)\b(token|secret|password|key)\b", "<redacted>", text)
     if len(text) > 240:
         return f"{text[:120]}…<redacted>…{text[-60:]}"
     return text

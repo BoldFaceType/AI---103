@@ -1,0 +1,56 @@
+{
+  "vector_search": {
+    "index": {
+      "name": "ai103-lab-vector-study",
+      "created_or_reused": "created-or-reused"
+    },
+    "ingestion": {
+      "document_count": 3
+    },
+    "embeddings": {
+      "provider": "Azure AI Foundry",
+      "model": "configured-foundry-model",
+      "document_count": 3
+    },
+    "queries": {
+      "vector": {
+        "top_citation": "doc-vector#p1",
+        "grounded_passage": "Vector search uses embeddings to retrieve passages by meaning."
+      },
+      "semantic": {
+        "top_citation": "doc-semantic#p1",
+        "grounded_passage": "Semantic ranking reranks text results by language understanding."
+      },
+      "hybrid": {
+        "top_citation": "doc-hybrid#p1",
+        "grounded_passage": "Hybrid search combines keyword and vector retrieval."
+      },
+      "keyword": {
+        "top_citation": "doc-keyword#p1",
+        "grounded_passage": "RAG answers cite grounded passages."
+      }
+    },
+    "evaluation": {
+      "recall_at_1": 1.0,
+      "citation_traceable": true
+    },
+    "rag": {
+      "answer": "Hybrid search combines keyword and vector retrieval and grounds the RAG answer in cited passages.",
+      "citations": ["doc-hybrid#p1"],
+      "grounded": true
+    },
+    "teardown": {
+      "deleted_index": true,
+      "kept_resources": false
+    }
+  },
+  "resource_ids": [
+    "https://search-a.search.windows.net",
+    "ai103-lab-vector-study"
+  ],
+  "cost_estimate": {
+    "currency": "USD",
+    "estimated": 0.06
+  },
+  "teardown_verified": true
+}
