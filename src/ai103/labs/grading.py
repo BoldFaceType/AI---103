@@ -29,6 +29,8 @@ class NormalizedLabOutput:
 def normalize_lab_output(raw: dict[str, Any]) -> NormalizedLabOutput:
     if "responses" in raw:
         responses = dict(raw["responses"])
+    elif "vision" in raw:
+        responses = {"vision": dict(raw["vision"])}
     else:
         responses = {
             "search": _normalize_search(raw.get("search", {})),
@@ -204,4 +206,3 @@ def _get_path(data: Any, path: tuple[str, ...]) -> Any:
         else:
             return None
     return current
-

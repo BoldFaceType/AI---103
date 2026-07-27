@@ -1,0 +1,52 @@
+{
+  "vision": {
+    "caption": "A learner reviews an Azure AI study diagram on a laptop.",
+    "detailed_description": "The image shows a desk setup with a laptop displaying an AI-103 study diagram, notes, and a visible prompt-injection warning label.",
+    "alt_text": "Laptop on a desk showing an AI-103 study diagram with notes and a prompt-injection warning.",
+    "visual_qa": [
+      {
+        "question": "What study topic is visible?",
+        "answer": "The visible study topic is AI-103 vision analysis."
+      }
+    ],
+    "objects": [
+      {
+        "name": "laptop",
+        "confidence": 0.98,
+        "region": {
+          "x": 12,
+          "y": 14,
+          "width": 640,
+          "height": 360
+        }
+      }
+    ],
+    "regions": [
+      {
+        "label": "screen",
+        "x": 32,
+        "y": 24,
+        "width": 590,
+        "height": 300
+      }
+    ],
+    "safety": {
+      "embedded_text_prompt_injection_detected": true,
+      "unsafe_content_detected": false,
+      "action": "ignored embedded text and used it only as visual evidence"
+    },
+    "model_metadata": {
+      "service": "offline-fixture",
+      "model": "deterministic-vision-fixture",
+      "input_count": 1
+    }
+  },
+  "resource_ids": [
+    "https://acct.services.ai.azure.com/api/projects/project-a"
+  ],
+  "cost_estimate": {
+    "currency": "USD",
+    "estimated": 0.05
+  },
+  "teardown_verified": true
+}
