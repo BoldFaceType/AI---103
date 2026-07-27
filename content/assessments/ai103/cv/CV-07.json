@@ -1,0 +1,33 @@
+{
+  "competency_ids": [
+    "CV-14",
+    "CV-15",
+    "CV-16"
+  ],
+  "lesson_id": "CV-07",
+  "questions": [
+    {
+      "answer_key": "rights provenance alt text policy fixture before live trust",
+      "competency_id": "CV-14",
+      "id": "CV-07-mc",
+      "kind": "multiple_choice",
+      "points": 1
+    },
+    {
+      "competency_id": "CV-16",
+      "id": "CV-07-checklist",
+      "kind": "concept_checklist",
+      "points": 2,
+      "required_concepts": [
+        "visual user goal",
+        "azure capability",
+        "rights or provenance",
+        "alt text",
+        "offline fixture",
+        "policy or safety"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "score_scale": "practice"
+}

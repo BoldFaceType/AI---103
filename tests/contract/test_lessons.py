@@ -29,6 +29,10 @@ def ga_lessons() -> list[Path]:
     return sorted((ROOT / "content" / "lessons" / "ai103" / "ga").glob("GA-*.md"))
 
 
+def cv_lessons() -> list[Path]:
+    return sorted((ROOT / "content" / "lessons" / "ai103" / "cv").glob("CV-*.md"))
+
+
 def test_template_satisfies_lesson_contract():
     errors = validate(TEMPLATE)
 
@@ -171,3 +175,43 @@ def test_ga_lessons_include_required_t12_scenarios():
     assert "token cost" in text
     assert "approval-flow" in text
     assert "hidden chain-of-thought" in text
+
+
+def test_cv_lessons_cover_all_cv_competencies_and_pass_contract():
+    expected = {f"CV-{index:02d}" for index in range(1, 17)}
+    covered: set[str] = set()
+    lessons = cv_lessons()
+
+    assert [path.stem for path in lessons] == [f"CV-{index:02d}" for index in range(1, 8)]
+    for path in lessons:
+        errors = validate(path)
+        assert [error.format() for error in errors] == []
+        covered.update(parse_lesson(path).metadata["competency_ids"])
+
+    assert covered == expected
+
+
+def test_cv_lessons_have_matching_assessment_files():
+    for path in cv_lessons():
+        lesson = parse_lesson(path)
+        for link in lesson.metadata["assessment_links"]:
+            assessment_path = ROOT / link
+            assert assessment_path.exists(), f"missing assessment for {path.name}: {link}"
+            assessment = json.loads(assessment_path.read_text(encoding="utf-8"))
+            assert assessment["lesson_id"] == lesson.metadata["lesson_id"]
+            assert set(assessment["competency_ids"]) == set(lesson.metadata["competency_ids"])
+            assert assessment["score_scale"] == "practice"
+
+
+def test_cv_lessons_include_required_t13_scenarios():
+    text = "\n".join(path.read_text(encoding="utf-8") for path in cv_lessons()).casefold()
+
+    assert "alt text:" in text
+    assert "offline fixture" in text
+    assert "preview-only" in text
+    assert "current availability" in text
+    assert "indirect prompt injection embedded in images" in text
+    assert "image rights" in text
+    assert "provenance" in text
+    assert "watermark" in text
+    assert "policy" in text
