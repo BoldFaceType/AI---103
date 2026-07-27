@@ -49,6 +49,8 @@ def test_live_gate_checklist_requires_explicit_owner_approval_before_live_action
         "uv run alo doctor --live",
         'powershell -ExecutionPolicy Bypass -File scripts/azure/deploy.ps1 -Live -WhatIf -Confirmation "deploy AI-103 live lab" -Location <region>',
         'powershell -ExecutionPolicy Bypass -File scripts/azure/deploy.ps1 -Live -Confirmation "deploy AI-103 live lab" -Location <region>',
+        'powershell -ExecutionPolicy Bypass -File scripts/azure/destroy.ps1 -Live -Confirmation "destroy AI-103 live lab" -ResourceGroupName <resource-group>',
+        "Stop release if destroy does not verify that the resource group is gone",
         "release: complete AI-103 adaptive study system v1.0.0",
     )
     for fragment in required_fragments:
