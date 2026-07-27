@@ -37,6 +37,10 @@ def ta_lessons() -> list[Path]:
     return sorted((ROOT / "content" / "lessons" / "ai103").joinpath("ta").glob("TA-*.md"))
 
 
+def ie_lessons() -> list[Path]:
+    return sorted((ROOT / "content" / "lessons" / "ai103" / "ie").glob("IE-*.md"))
+
+
 def test_template_satisfies_lesson_contract():
     errors = validate(TEMPLATE)
 
@@ -260,3 +264,59 @@ def test_ta_lessons_include_required_t14_scenarios():
     assert "text-to-speech" in text or "text to speech" in text
     assert "accessibility" in text
     assert "consent" in text
+
+
+def test_ie_lessons_cover_all_ie_competencies_and_pass_contract():
+    expected = {f"IE-{index:02d}" for index in range(1, 9)}
+    covered: set[str] = set()
+    lessons = ie_lessons()
+
+    assert [path.stem for path in lessons] == [f"IE-{index:02d}" for index in range(1, 7)]
+    for path in lessons:
+        errors = validate(path)
+        assert [error.format() for error in errors] == []
+        covered.update(parse_lesson(path).metadata["competency_ids"])
+
+    assert covered == expected
+
+
+def test_ie_lessons_have_matching_assessment_files():
+    for path in ie_lessons():
+        lesson = parse_lesson(path)
+        for link in lesson.metadata["assessment_links"]:
+            assessment_path = ROOT / link
+            assert assessment_path.exists(), f"missing assessment for {path.name}: {link}"
+            assessment = json.loads(assessment_path.read_text(encoding="utf-8"))
+            assert assessment["lesson_id"] == lesson.metadata["lesson_id"]
+            assert set(assessment["competency_ids"]) == set(lesson.metadata["competency_ids"])
+            assert assessment["score_scale"] == "practice"
+
+
+def test_ie_lessons_include_required_t15_scenarios():
+    text = "\n".join(path.read_text(encoding="utf-8") for path in ie_lessons()).casefold()
+
+    assert "multimodal ingestion" in text
+    assert "semantic" in text
+    assert "hybrid" in text
+    assert "vector search" in text
+    assert "enrichment" in text
+    assert "ocr" in text
+    assert "rag" in text
+    assert "agent retrieval tool" in text
+    assert "content understanding analyzer" in text
+
+
+def test_ai103_notes_readme_is_a_curriculum_hub():
+    text = (ROOT / "content" / "notes" / "ai103" / "README.md").read_text(encoding="utf-8")
+    lowered = text.casefold()
+
+    assert "Add lesson notes here" not in text
+    assert "Describe tutoring instructions here" not in text
+    assert "content/sources/ai103-source-registry.json" in text
+    assert "config/curriculum.ai103.json" in text
+    for domain in ("pm", "ga", "cv", "ta", "ie"):
+        assert f"content/lessons/ai103/{domain}/" in lowered
+        assert f"content/assessments/ai103/{domain}/" in lowered
+        assert f"--domain {domain.upper()}" in text
+    assert "glossary" in lowered
+    assert "do not edit authoritative lesson files" in lowered
