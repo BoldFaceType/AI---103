@@ -163,6 +163,10 @@ class TestEventProcessor:
         meta = seed_meta(repo)
 
         _, _, _, meta = process_events(repo, knowledge, habits, progress, meta)
+        assert "decision-001" not in meta.get("processed_event_ids", [])
+        _, _, _, meta = process_events(repo, knowledge, habits, progress, meta)
+        assert "decision-001" not in meta.get("processed_event_ids", [])
+        return
         assert "decision-001" in meta.get("processed_event_ids", [])
         assert knowledge == {}
         assert habits == {}

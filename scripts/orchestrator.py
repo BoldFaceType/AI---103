@@ -379,6 +379,9 @@ def process_events(
             append_audit("skip_unknown_event", "logs/events.ndjson", "orchestrator", "skipped", {"event": event})
             processed_event_ids.add(event["event_id"])
             continue
+        if event.get("type") == "decision_made":
+            append_audit("audit_only_event", "logs/events.ndjson", "orchestrator", "ok", {"event": event})
+            continue
         if is_audit_only_event(event):
             append_audit("audit_only_event", "logs/events.ndjson", "orchestrator", "ok", {"event": event})
             processed_event_ids.add(event["event_id"])
