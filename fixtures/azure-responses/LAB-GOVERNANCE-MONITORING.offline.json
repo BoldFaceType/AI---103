@@ -1,0 +1,30 @@
+{
+  "responses": {
+    "governance": {
+      "responsible_ai": {
+        "unsafe_request_blocked": true,
+        "blocked_reason": "unsafe content simulation"
+      },
+      "approval_controls": {
+        "billable_action_requires_approval": true,
+        "destructive_action_requires_approval": true
+      },
+      "monitoring": {
+        "trace_captured": true,
+        "latency_ms": 1200
+      },
+      "operations": {
+        "quota_cost_health_checked": true,
+        "quota_status": "within sandbox limit",
+        "cost_status": "offline zero-cost fixture",
+        "resource_health": "simulated healthy"
+      }
+    }
+  },
+  "resource_ids": [],
+  "cost_estimate": {
+    "currency": "USD",
+    "estimated": 0.0
+  },
+  "teardown_verified": true
+}

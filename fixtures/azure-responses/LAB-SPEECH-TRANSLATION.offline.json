@@ -1,0 +1,30 @@
+{
+  "responses": {
+    "speech": {
+      "speech_to_text": {
+        "transcript": "AI-103 speech lab synthetic sample.",
+        "confidence": 0.99
+      },
+      "text_to_speech": {
+        "synthesis_labeled": true,
+        "voice": "synthetic-fixture"
+      },
+      "translation": {
+        "source_language": "en",
+        "target_language": "es",
+        "text": "Muestra sintética del laboratorio de voz AI-103."
+      },
+      "consent_license": {
+        "valid": true,
+        "consent": "granted",
+        "license": "repository fixture"
+      }
+    }
+  },
+  "resource_ids": [],
+  "cost_estimate": {
+    "currency": "USD",
+    "estimated": 0.0
+  },
+  "teardown_verified": true
+}

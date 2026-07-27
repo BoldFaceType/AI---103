@@ -1,0 +1,16 @@
+{
+  "governance": {
+    "responsible_ai": {
+      "unsafe_request_blocked": true
+    },
+    "operations": {
+      "quota_cost_health_checked": true
+    }
+  },
+  "resource_ids": [],
+  "cost_estimate": {
+    "currency": "USD",
+    "estimated": 0.0
+  },
+  "teardown_verified": true
+}
