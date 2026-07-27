@@ -1,0 +1,39 @@
+{
+  "cost_estimate": null,
+  "lab_id": "LAB-SEARCH-RAG",
+  "partial_resources": [],
+  "resource_ids": [],
+  "responses": {
+    "content_understanding": {
+      "markdown_sections": [
+        "Vector search setup",
+        "Index schema",
+        "Grounded citation policy"
+      ]
+    },
+    "foundry": {
+      "answer": "Use the indexed deployment note and cite [doc-1#p3].",
+      "citations": [
+        "doc-1#p3"
+      ]
+    },
+    "search": {
+      "citations": [
+        {
+          "source_id": "doc-1#p3"
+        }
+      ],
+      "documents": [
+        {
+          "chunk": "Vector search setup requires an embedding field and citation metadata.",
+          "source_id": "doc-1#p3"
+        }
+      ]
+    },
+    "storage": {
+      "allow_blob_public_access": false
+    }
+  },
+  "teardown_verified": true
+}
+
