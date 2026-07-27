@@ -7,6 +7,7 @@ All notable project changes are recorded here.
 ### Documentation
 
 - Added `docs/releases/v1.0.0-acceptance.md` with T31 offline UAT evidence, offline release gate results, and explicit pending H1/H2/H3/H4 live/release gates.
+- Added `docs/releases/v1.0.0-coverage.md` with one row per official AI-103 competency and explicit offline/live status.
 - Clarified that v1.0.0 is not release-approved until Azure account terms, live deployment, model choice, teardown/accounting, and final user acceptance are complete.
 - Reconciled current-facing AI-103 documentation after T29: README, sprint plan, agent guides, testing, configuration, and getting-started docs now identify the implemented curriculum, labs, tutor, evals, and live-cost guardrails.
 - Added a sprint-to-artifact matrix linking study blocks to lesson IDs, assessment paths, lab IDs, and runnable offline commands.
