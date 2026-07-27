@@ -1,0 +1,30 @@
+{
+  "competency_ids": [
+    "GA-01"
+  ],
+  "lesson_id": "GA-01",
+  "questions": [
+    {
+      "answer_key": "validate model calls before trust",
+      "competency_id": "GA-01",
+      "id": "GA-01-mc",
+      "kind": "multiple_choice",
+      "points": 1
+    },
+    {
+      "competency_id": "GA-01",
+      "id": "GA-01-checklist",
+      "kind": "concept_checklist",
+      "points": 2,
+      "required_concepts": [
+        "model-call contract",
+        "identity",
+        "response validation",
+        "token cost",
+        "telemetry"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "score_scale": "practice"
+}

@@ -25,6 +25,10 @@ def pm_lessons() -> list[Path]:
     return sorted((ROOT / "content" / "lessons" / "ai103" / "pm").glob("PM-*.md"))
 
 
+def ga_lessons() -> list[Path]:
+    return sorted((ROOT / "content" / "lessons" / "ai103" / "ga").glob("GA-*.md"))
+
+
 def test_template_satisfies_lesson_contract():
     errors = validate(TEMPLATE)
 
@@ -128,3 +132,42 @@ def test_pm_lessons_include_required_t11_scenarios():
     assert "without creating live azure resources" in text or "before any provisioning" in text
     assert "least-privilege" in text
     assert "budget" in text
+
+
+def test_ga_lessons_cover_all_ga_competencies_and_pass_contract():
+    expected = {f"GA-{index:02d}" for index in range(1, 17)}
+    covered: set[str] = set()
+    lessons = ga_lessons()
+
+    assert [path.stem for path in lessons] == [f"GA-{index:02d}" for index in range(1, 11)]
+    for path in lessons:
+        errors = validate(path)
+        assert [error.format() for error in errors] == []
+        covered.update(parse_lesson(path).metadata["competency_ids"])
+
+    assert covered == expected
+
+
+def test_ga_lessons_have_matching_assessment_files():
+    for path in ga_lessons():
+        lesson = parse_lesson(path)
+        for link in lesson.metadata["assessment_links"]:
+            assessment_path = ROOT / link
+            assert assessment_path.exists(), f"missing assessment for {path.name}: {link}"
+            assessment = json.loads(assessment_path.read_text(encoding="utf-8"))
+            assert assessment["lesson_id"] == lesson.metadata["lesson_id"]
+            assert set(assessment["competency_ids"]) == set(lesson.metadata["competency_ids"])
+            assert assessment["score_scale"] == "practice"
+
+
+def test_ga_lessons_include_required_t12_scenarios():
+    text = "\n".join(path.read_text(encoding="utf-8") for path in ga_lessons()).casefold()
+
+    assert "tool schema validation" in text
+    assert "human approval" in text
+    assert all(term in text for term in ("quality", "relevance", "safety", "latency", "cost"))
+    assert "fabrication" in text
+    assert "tool failure" in text
+    assert "token cost" in text
+    assert "approval-flow" in text
+    assert "hidden chain-of-thought" in text
