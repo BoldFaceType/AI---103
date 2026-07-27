@@ -9,6 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(ROOT / "src"))
 
 SCHEMA_VERSION = 2
 LEGACY_CONCEPTS = ["vision-services", "language-services", "search-services", "responsible-ai"]
@@ -100,6 +101,13 @@ def cmd_init(_args: argparse.Namespace) -> None:
     print("Initialized. Run 'python scripts/alo.py status' to confirm.")
 
 
+def cmd_doctor(args: argparse.Namespace) -> None:
+    from ai103.operations.doctor import main as doctor_main
+
+    code = doctor_main(root=ROOT, live=args.live)
+    raise SystemExit(code)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="alo",
@@ -110,6 +118,11 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("status", help="Show knowledge map, tasks, and session stats")
     sub.add_parser("run", help="Process events and update learner state")
     sub.add_parser("init", help="Create baseline folders and sample files")
+
+    doctor = sub.add_parser("doctor", help="Run local and optional live Azure readiness diagnostics")
+    mode = doctor.add_mutually_exclusive_group()
+    mode.add_argument("--offline", action="store_true", help="Run local diagnostics only; this is the default")
+    mode.add_argument("--live", action="store_true", help="Run read-only Azure readiness checks")
 
     log = sub.add_parser("log", help="Record a quiz result")
     log.add_argument("concept", choices=CONCEPTS, help="Concept area tested")
@@ -122,7 +135,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
-    {"status": cmd_status, "log": cmd_log, "run": cmd_run, "init": cmd_init}[args.command](args)
+    {"status": cmd_status, "log": cmd_log, "run": cmd_run, "init": cmd_init, "doctor": cmd_doctor}[args.command](args)
 
 
 if __name__ == "__main__":

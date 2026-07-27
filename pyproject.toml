@@ -11,6 +11,13 @@ dependencies = [
     "azure-search-documents>=11.6.0",
 ]
 
+[project.scripts]
+alo = "ai103.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.28.0"]
+build-backend = "hatchling.build"
+
 [dependency-groups]
 dev = [
     "pytest>=8.4.0",
@@ -19,8 +26,11 @@ dev = [
     "ruff>=0.12.0",
 ]
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/ai103"]
+
 [tool.uv]
-package = false
+package = true
 
 [tool.pytest.ini_options]
 addopts = [
