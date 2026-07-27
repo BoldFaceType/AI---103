@@ -33,6 +33,10 @@ def cv_lessons() -> list[Path]:
     return sorted((ROOT / "content" / "lessons" / "ai103" / "cv").glob("CV-*.md"))
 
 
+def ta_lessons() -> list[Path]:
+    return sorted((ROOT / "content" / "lessons" / "ai103").joinpath("ta").glob("TA-*.md"))
+
+
 def test_template_satisfies_lesson_contract():
     errors = validate(TEMPLATE)
 
@@ -215,3 +219,44 @@ def test_cv_lessons_include_required_t13_scenarios():
     assert "provenance" in text
     assert "watermark" in text
     assert "policy" in text
+
+
+def test_ta_lessons_cover_all_ta_competencies_and_pass_contract():
+    expected = {f"TA-{index:02d}" for index in range(1, 9)}
+    covered: set[str] = set()
+    lessons = ta_lessons()
+
+    assert [path.stem for path in lessons] == [f"TA-{index:02d}" for index in range(1, 7)]
+    for path in lessons:
+        errors = validate(path)
+        assert [error.format() for error in errors] == []
+        covered.update(parse_lesson(path).metadata["competency_ids"])
+
+    assert covered == expected
+
+
+def test_ta_lessons_have_matching_assessment_files():
+    for path in ta_lessons():
+        lesson = parse_lesson(path)
+        for link in lesson.metadata["assessment_links"]:
+            assessment_path = ROOT / link
+            assert assessment_path.exists(), f"missing assessment for {path.name}: {link}"
+            assessment = json.loads(assessment_path.read_text(encoding="utf-8"))
+            assert assessment["lesson_id"] == lesson.metadata["lesson_id"]
+            assert set(assessment["competency_ids"]) == set(lesson.metadata["competency_ids"])
+            assert assessment["score_scale"] == "practice"
+
+
+def test_ta_lessons_include_required_t14_scenarios():
+    text = "\n".join(path.read_text(encoding="utf-8") for path in ta_lessons()).casefold()
+
+    assert "synthetic medical example" in text
+    assert "synthetic pii example" in text
+    assert "no real personal, clinical, or customer data" in text
+    assert "foundry model versus dedicated foundry tool" in text
+    assert "translation" in text
+    assert "structured json" in text
+    assert "speech-to-text" in text or "speech to text" in text
+    assert "text-to-speech" in text or "text to speech" in text
+    assert "accessibility" in text
+    assert "consent" in text

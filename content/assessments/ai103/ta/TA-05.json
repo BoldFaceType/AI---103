@@ -1,0 +1,30 @@
+{
+  "competency_ids": [
+    "TA-05"
+  ],
+  "lesson_id": "TA-05",
+  "questions": [
+    {
+      "answer_key": "synthetic data and validated model-versus-tool choice",
+      "competency_id": "TA-05",
+      "id": "TA-05-mc",
+      "kind": "multiple_choice",
+      "points": 1
+    },
+    {
+      "competency_id": "TA-05",
+      "id": "TA-05-checklist",
+      "kind": "concept_checklist",
+      "points": 2,
+      "required_concepts": [
+        "synthetic data",
+        "model versus tool",
+        "validation",
+        "accessibility or consent",
+        "remediation"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "score_scale": "practice"
+}
