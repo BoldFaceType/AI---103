@@ -6,6 +6,8 @@ All notable project changes are recorded here.
 
 ### Documentation
 
+- Added `docs/releases/v1.0.0-acceptance.md` with T31 offline UAT evidence, offline release gate results, and explicit pending H1/H2/H3/H4 live/release gates.
+- Clarified that v1.0.0 is not release-approved until Azure account terms, live deployment, model choice, teardown/accounting, and final user acceptance are complete.
 - Reconciled current-facing AI-103 documentation after T29: README, sprint plan, agent guides, testing, configuration, and getting-started docs now identify the implemented curriculum, labs, tutor, evals, and live-cost guardrails.
 - Added a sprint-to-artifact matrix linking study blocks to lesson IDs, assessment paths, lab IDs, and runnable offline commands.
 - Verified the current Microsoft Learn AI-103 baseline still uses skills measured as of 2026-04-16 and the five official domains/ranges already represented in the repo.
@@ -21,6 +23,8 @@ All notable project changes are recorded here.
 
 ### Current product status
 
+- T31 offline UAT passes from a fresh clone, including sync, offline doctor, session workflow, retrieval prompt, lesson completion, quiz submission, tutor fixture, offline lab, review generation, idempotent replay, and learner-data export.
+- Generated `decision_made` audit rows no longer advance learner `processed_event_ids`, keeping repeated `alo run` replay stable for release UAT.
 - Current AI-103 domain state, lesson corpus, assessments, tutor prompt, notes hub, offline lab scripts, lab fixtures, and deterministic eval suites are implemented as of T29.
 - Live Azure and model execution remain explicit, guarded, and potentially billable; offline mode is the default.
 - The following three bullets are retained from the earlier ALO baseline and are superseded by the T29/T30 status bullets above.
