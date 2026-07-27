@@ -11,3 +11,6 @@ _meta/
 exports/
 tmp/
 .uv-cache/
+.azure-local/
+state/azure-live/
+infra/main.json
