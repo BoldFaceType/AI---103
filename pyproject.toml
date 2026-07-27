@@ -4,7 +4,12 @@ version = "0.1.0"
 description = "Local-first Adaptive Learning Orchestrator for AI-103 study."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "azure-ai-contentunderstanding>=1.0.0b1",
+    "azure-ai-projects>=2.0.0",
+    "azure-identity>=1.25.1",
+    "azure-search-documents>=11.6.0",
+]
 
 [dependency-groups]
 dev = [
