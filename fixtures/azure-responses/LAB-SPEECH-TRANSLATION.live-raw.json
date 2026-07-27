@@ -3,8 +3,14 @@
     "speech_to_text": {
       "transcript": "AI-103 speech lab synthetic sample."
     },
+    "text_to_speech": {
+      "synthesis_labeled": true
+    },
     "translation": {
       "target_language": "es"
+    },
+    "consent_license": {
+      "valid": true
     }
   },
   "resource_ids": [],

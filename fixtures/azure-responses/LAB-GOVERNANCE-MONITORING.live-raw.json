@@ -3,6 +3,12 @@
     "responsible_ai": {
       "unsafe_request_blocked": true
     },
+    "approval_controls": {
+      "billable_action_requires_approval": true
+    },
+    "monitoring": {
+      "trace_captured": true
+    },
     "operations": {
       "quota_cost_health_checked": true
     }

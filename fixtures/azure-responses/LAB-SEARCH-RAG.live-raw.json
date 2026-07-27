@@ -16,6 +16,10 @@
     "citations": [
       "doc-1#p3"
     ],
+    "model_metadata": {
+      "model": "configured-foundry-model",
+      "service": "Azure AI Foundry Responses API"
+    },
     "output_text": "Use the indexed deployment note and cite [doc-1#p3]."
   },
   "resource_ids": [
