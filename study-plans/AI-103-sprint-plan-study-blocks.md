@@ -1,85 +1,159 @@
-TL;DR  
-This sprint plan establishes a high-velocity, 4-week study structure targeting the Azure AI-102 certification by June 28, 2026. It applies the Rule of One (focusing strictly on passing the exam via hands-on execution) and rejects theoretical bloat. Each block balances the Core Four primitives across Azure AI services, optimized for your local/hybrid stack.
+# AI-103 Sprint Plan and Study Blocks
 
-The Vetting Protocol (VCR & KISS)  
-We are not reading 500-page whitepapers. We are treating the AI-102 objectives as automation endpoints. The target is to maximize the Value-to-Complexity Ratio (VCR) by mapping Azure SDKs directly to functional code scripts inside your WSL2/Ubuntu environment, bypassing unnecessary portal clicking where a terminal command works faster.
+Status: curriculum-aligned plan; lesson and lab implementation pending
+Target: Microsoft Certified: Azure AI Apps and Agents Developer Associate
+Source baseline: official AI-103 skills measured as of 2026-04-16
 
-4-Week Sprint Control Flow  
-[Week 1: Cognitive & Vision Services] --> [Week 2: NLP & Document Intelligence]  
-                                                   |  
-                                                   v  
-[Week 4: Final Drills & Exam Day]     <-- [Week 3: Knowledge Mining & Azure OpenAI]  
-Data & Control Flow Chart: Weekly Execution Loop
+Implementation status as of 2026-07-27: the repository now contains the AI-103 domain registry, schema v2 learner state, substantive lessons, deterministic assessments, offline lab scripts, guarded tutor behavior, and offline evaluation suites. Older “pending” notes in this file are historical planning context; this reconciliation block is the current status baseline.
 
-       +---------------------------------------------+  
-       |   Monday: Map AI-102 Domain to Context      |  
-       +---------------------------------------------+  
-                              |  
-                              v  
-       +---------------------------------------------+  
-       |   Tue-Thu: Build Raw Python Scripts / Tools |  
-       +---------------------------------------------+  
-                              |  
-                              v  
-       +---------------------------------------------+  
-       |   Friday: Negative Space Refactoring & Labs |  
-       +---------------------------------------------+  
-                              |  
-                              v  
-       +---------------------------------------------+  
-       |   Saturday: Practice Questions (Measure VCR)|  
-       +---------------------------------------------+
+Official Microsoft Learn still lists these AI-103 skill ranges for the current study guide baseline: Plan and manage an Azure AI solution 25–30%, Implement generative AI and agentic solutions 30–35%, Implement computer vision solutions 10–15%, Implement text analysis solutions 10–15%, and Implement information extraction solutions 10–15%.
 
-Detailed Study Blocks  
-Week 1: Computer Vision & Edge Integration (Value: High | Complexity: Moderate)  
-Focus: Azure AI Vision, Custom Vision, and Video Indexer.
+## Purpose
 
-Core Four Mapping:
+Build exam readiness through short cycles of substantive instruction, retrieval practice, hands-on work, deterministic assessment, and scheduled review. This plan replaces the repository's historical AI-102 framing.
 
-Context: Image/Video binary payloads, camera streams.
+The working Adaptive Learning Orchestrator remains the learner-state engine. Until its migration is implemented, it continues using the four legacy keys `vision-services`, `language-services`, `search-services`, and `responsible-ai`.
 
-Model: Azure Vision API backends.
+## Current AI-103 domains
 
-Prompt/Config: JSON analysis features (Tags, OCR, Objects).
+| Domain | Official range | Planning weight |
+|---|---:|---:|
+| Plan and manage an Azure AI solution | 25–30% | 27.5% |
+| Implement generative AI and agentic solutions | 30–35% | 32.5% |
+| Implement computer vision solutions | 10–15% | 13.3% |
+| Implement natural language processing solutions | 10–15% | 13.3% |
+| Implement knowledge mining and information extraction solutions | 10–15% | 13.4% |
 
-Tools: Python SDK (azure-cognitiveservices-vision-computervision).
+Planning weights select study time only; the official ranges remain the exam source of truth.
 
-Execution Task: Write a unified script following your file naming convention: Create_VisionAnalysis_WSL.py. Connect it to a mock local directory to simulate local-first ingestion.
+## Sprint-to-artifact matrix
 
-Week 2: Language Processing & Document Intelligence (Value: High | Complexity: High)  
-Focus: Azure AI Language, Translation, and Document Intelligence (Form Recognizer).
+Each sprint block below maps to implemented lesson IDs, assessments, and at least one executable or replayable lab path. “Planned” lesson-local lab paths remain prompts for future expansion, but the executable lab IDs listed here are the current runnable baseline.
 
-Core Four Mapping:
+| Sprint | Domain focus | Lesson IDs | Executable/replayable lab IDs and scripts |
+|---|---|---|---|
+| Sprint 0 | Tooling, baseline, safety | PM-01 through PM-08 safety and operations sections | `uv run alo doctor --offline`; `uv run python scripts/run_evals.py --offline` |
+| Sprint 1 | Plan and manage Azure AI solutions | PM-01 through PM-08 | `LAB-GOVERNANCE-MONITORING`; `scripts/labs/run_remaining_labs.py --offline` |
+| Sprint 2 | Generative AI and agentic solutions | GA-01 through GA-10 | `LAB-AGENT-WORKFLOWS`; `LAB-SEARCH-RAG`; `scripts/labs/run_agent_lab.py --offline` |
+| Sprint 3 | Computer vision | CV-01 through CV-07 | `LAB-VISION-ANALYSIS`; `LAB-MEDIA-GENERATION`; `scripts/labs/Create_VisionAnalysis_WSL.py --offline` |
+| Sprint 4 | Text analysis solutions | TA-01 through TA-06 | `LAB-MEDICAL-TEXT`; `LAB-SPEECH-TRANSLATION`; `scripts/labs/Extract_MedicalText_Clinical.py --offline` |
+| Sprint 5 | Information extraction solutions | IE-01 through IE-06 | `LAB-VECTOR-SEARCH`; `LAB-SEARCH-RAG`; `scripts/labs/Query_VectorSearch_Azure.py --offline` |
+| Sprint 6 | Interleaved review and release acceptance | PM, GA, CV, TA, IE mixed review | `uv run pytest -m "not live_azure" -q`; `uv run python scripts/run_evals.py --offline` |
 
-Context: Unstructured medical notes/text, PDF medical records (aligned with your ClinicalAI-Verifier portfolio goals).
+Assessment paths follow `content/assessments/ai103/<domain>/<lesson-id>.json`; lesson paths follow `content/lessons/ai103/<domain>/<lesson-id>.md`.
 
-Model: Azure Language & Document Models.
+## Learning loop
 
-Prompt/Config: Named Entity Recognition (NER) schemas, Custom extraction models.
+Each session follows this sequence:
 
-Tools: Azure Document Intelligence SDK.
+1. Closed-book retrieval questions.
+2. A short substantive lesson with concrete examples and a visual representation.
+3. Compare/contrast and “why” elaboration.
+4. Guided practice at the learner's current ZPD level.
+5. Independent assessment using a deterministic rubric.
+6. Plain-language self-explanation.
+7. An offline-first lab, with live Azure mode only when explicitly approved.
+8. Scheduled review interleaved with another domain.
 
-Execution Task: Build Extract_MedicalText_Clinical.py. Feed it structured and unstructured text to verify handling of PII and medical entities.
+Spacing stages are 1, 3, 7, 14, 30, and 60 days, shortened after failure. The planner should avoid more than two consecutive items from one domain when due work from another domain exists.
 
-Week 3: Knowledge Mining & Azure OpenAI Orchestration (Value: Critical | Complexity: High)  
-Focus: Azure AI Search (formerly Cognitive Search) and Azure OpenAI Service tokens/deployments.
+## Sprint sequence
 
-Core Four Mapping:
+### Sprint 0 — Tooling, baseline, and safety
 
-Context: Vector indexes, chunked documents.
+- Preserve and verify the existing ALO.
+- Configure project-scoped Python, `uv`, pytest, linting, and offline CI.
+- Add migration backups, dry runs, and compatibility tests.
+- Document Azure account options, spending warnings, regions, quotas, and teardown.
 
-Model: gpt-4o, text-embedding-3-large.
+Exit gate: all existing commands and offline tests pass; no live resource is required.
 
-Prompt: System instructions enforcing strict boundaries (KISS).
+### Sprint 1 — Plan and manage Azure AI solutions
 
-Tools: Azure AI Search SDK, OpenAI Python SDK client.
+Study:
 
-Execution Task: Build a deterministic RAG script Query_VectorSearch_Azure.py. Maximize output tokens dedicated to API tool definitions to mirror parallel agentic architectures.
+- Requirement and service selection.
+- Foundry projects, models, deployments, quotas, and responsible AI.
+- Authentication, authorization, networking, secrets, monitoring, and cost.
+- Content safety, evaluation, tracing, and lifecycle management.
 
-Week 4: Precision Refinement & Exam Simulation (Value: Maximum | Complexity: Low)  
-Focus: Edge deployment (IoT Edge containers), Responsible AI compliance, and practice exams.
+Practice:
 
-Execution Task: Run full-length practice tests. Use the Negative Space paradigm here: eliminate incorrect answers ruthlessly based on Azure documentation constraints rather than guessing the "right" answer.
+- Design a cost-guarded architecture.
+- Compare model and service choices.
+- Run deployment preflight and teardown simulations.
 
-Next Steps  
-Confirm if this structure aligns with your current daily bandwidth so we can micro-task the specific Azure CLI commands for Week 1 environment initialization.
+### Sprint 2 — Generative AI and agentic solutions
+
+Study:
+
+- Prompting and structured output.
+- Model selection, evaluation, safety, and observability.
+- Retrieval-augmented generation.
+- Tools, memory, orchestration, and multi-agent patterns.
+- Groundedness, prompt injection, and bounded execution.
+
+Practice:
+
+- Invoke a configured Microsoft Foundry model.
+- Build a grounded tutor that coaches but never grades.
+- Run guarded tool and agent exercises with deterministic checks.
+
+### Sprint 3 — Computer vision
+
+Study:
+
+- Image analysis, OCR, multimodal models, video, and responsible use.
+- Input preparation, confidence interpretation, and result validation.
+
+Required script: `scripts/labs/Create_VisionAnalysis_WSL.py`
+
+The script must run against checked-in offline fixtures and optionally call the configured Azure service in explicit live mode.
+
+### Sprint 4 — Natural language processing
+
+Study:
+
+- Language detection, sentiment, key phrases, named entities, PII, translation, speech, and conversation analysis.
+- Privacy and safe handling of sensitive text.
+
+Required script: `scripts/labs/Extract_MedicalText_Clinical.py`
+
+Use synthetic medical text only. Logs and tutor context must redact source text and identifiers.
+
+### Sprint 5 — Knowledge mining and information extraction
+
+Study:
+
+- Indexes, indexers, skillsets, chunking, embeddings, vector search, semantic ranking, hybrid search, RAG, document extraction, and Content Understanding.
+
+Required script: `scripts/labs/Query_VectorSearch_Azure.py`
+
+The lab must compare keyword, vector, semantic, and hybrid retrieval; emit traceable citations; and grade against deterministic fixtures.
+
+### Sprint 6 — Interleaved review and release acceptance
+
+- Rotate all five domains.
+- Complete timed retrieval sets and error-driven reviews.
+- Run one complete offline learning cycle.
+- With explicit approval, run the guarded Azure smoke suite and verify teardown.
+- Demonstrate scaffold fading after repeated independent success.
+- Produce a final coverage matrix mapping every official competency to lessons, retrieval items, labs, assessments, and sources.
+
+## Azure account reality
+
+General Microsoft Learn Azure sandboxes are retired. Live work therefore requires an Azure free account, Azure for Students, or an approved existing subscription. Budget alerts are warnings rather than hard caps.
+
+Every live lab must:
+
+- show the expected resources and cost risk;
+- require explicit confirmation;
+- authenticate through Microsoft Entra ID;
+- use a unique resource group;
+- support idempotent teardown;
+- verify resource deletion;
+- retain an offline path.
+
+## Implementation source
+
+The ordered engineering backlog, file ownership, dependencies, acceptance criteria, validation commands, stop conditions, and commit checkpoints are in the [AI-103 Completion Task Manifest](../docs/plans/2026-07-24-ai-103-completion-task-manifest.md).

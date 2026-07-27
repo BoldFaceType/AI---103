@@ -1,0 +1,25 @@
+{
+  "documents": [
+    {
+      "id": "doc-vector",
+      "title": "Vector search setup",
+      "content": "Vector search uses embeddings to retrieve passages by meaning even when terms differ.",
+      "citations": ["doc-vector#p1"],
+      "content_vector": [0.11, 0.22, 0.33]
+    },
+    {
+      "id": "doc-semantic",
+      "title": "Semantic ranker",
+      "content": "Semantic ranking reranks text results by language understanding and can improve answer relevance.",
+      "citations": ["doc-semantic#p1"],
+      "content_vector": [0.21, 0.32, 0.43]
+    },
+    {
+      "id": "doc-hybrid",
+      "title": "Hybrid RAG grounding",
+      "content": "Hybrid search combines keyword and vector retrieval, then RAG answers cite grounded passages.",
+      "citations": ["doc-hybrid#p1", "doc-keyword#p1"],
+      "content_vector": [0.31, 0.42, 0.53]
+    }
+  ]
+}

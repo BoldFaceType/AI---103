@@ -1,0 +1,13 @@
+SYNTHETIC TRAINING NOTE - no real PHI.
+Synthetic patient: Taylor Example
+Synthetic patient id: SYN-TRIAGE-001
+Synthetic callback: 555-0100
+
+Scenario:
+Taylor reports mild headache after screen-heavy AI-103 study. They deny chest pain, weakness, vision loss, fever, head trauma, or confusion. They ask whether self-care and follow-up guidance are enough.
+
+Expected extraction:
+- symptom: headache
+- severity: mild
+- topic: triage
+- safety: no emergency signs reported

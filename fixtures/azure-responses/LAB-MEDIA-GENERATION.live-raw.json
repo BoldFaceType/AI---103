@@ -1,0 +1,22 @@
+{
+  "media_generation": {
+    "image_generation": {
+      "offline_simulation": true
+    },
+    "image_editing": {
+      "mask_workflow": true
+    },
+    "video_generation": {
+      "preview_simulation": true
+    },
+    "policy": {
+      "generated_media_labeled": true
+    }
+  },
+  "resource_ids": [],
+  "cost_estimate": {
+    "currency": "USD",
+    "estimated": 0.0
+  },
+  "teardown_verified": true
+}

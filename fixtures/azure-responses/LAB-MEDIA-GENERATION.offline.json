@@ -1,0 +1,28 @@
+{
+  "responses": {
+    "media_generation": {
+      "image_generation": {
+        "offline_simulation": true,
+        "prompt": "Create a labeled AI-103 architecture study diagram."
+      },
+      "image_editing": {
+        "mask_workflow": true,
+        "mask_policy_checked": true
+      },
+      "video_generation": {
+        "preview_simulation": true,
+        "live_requires_availability_and_approval": true
+      },
+      "policy": {
+        "generated_media_labeled": true,
+        "service_policy_note": "Synthetic study media is labeled and treated as generated content."
+      }
+    }
+  },
+  "resource_ids": [],
+  "cost_estimate": {
+    "currency": "USD",
+    "estimated": 0.0
+  },
+  "teardown_verified": true
+}

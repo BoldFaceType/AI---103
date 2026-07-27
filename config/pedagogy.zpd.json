@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "techniques": [
+    {
+      "id": "retrieval_practice",
+      "name": "Retrieval practice",
+      "requirement": "Ask 3-5 closed-book questions before instruction and record first-attempt evidence."
+    },
+    {
+      "id": "spaced_repetition",
+      "name": "Spaced repetition",
+      "requirement": "Schedule deterministic reviews at configured intervals and shorten after failure."
+    },
+    {
+      "id": "interleaving",
+      "name": "Interleaving",
+      "requirement": "Mix due items across domains and avoid more than two same-domain items consecutively."
+    },
+    {
+      "id": "elaboration",
+      "name": "Elaboration",
+      "requirement": "Ask why, how, compare/contrast, and consequence prompts."
+    },
+    {
+      "id": "dual_coding",
+      "name": "Dual coding",
+      "requirement": "Include a meaningful diagram, alt text, and a diagram-reconstruction prompt."
+    },
+    {
+      "id": "feynman_self_explanation",
+      "name": "Feynman/self-explanation",
+      "requirement": "Ask for a novice explanation and score it with a deterministic concept checklist."
+    },
+    {
+      "id": "concrete_examples",
+      "name": "Concrete examples",
+      "requirement": "Include one worked Azure scenario and one transfer scenario with different surface details."
+    }
+  ],
+  "spacing_intervals_days": [
+    1,
+    3,
+    7,
+    14,
+    30,
+    60
+  ],
+  "promotion": {
+    "independent_successes_required": 2
+  },
+  "demotion": {
+    "consecutive_failures_required": 2,
+    "unsafe_live_lab_demotes": true,
+    "stale_review_days": 14
+  },
+  "zpd_levels": [
+    {
+      "level": 0,
+      "evidence": "No evidence or repeated failure",
+      "scaffolding": "Fully worked example, vocabulary, one step at a time",
+      "hint_level": "worked_example"
+    },
+    {
+      "level": 1,
+      "evidence": "Can recognize but not produce",
+      "scaffolding": "Guided completion, strong hints, partial code",
+      "hint_level": "strong"
+    },
+    {
+      "level": 2,
+      "evidence": "Partial independent success",
+      "scaffolding": "Faded hints, debugging prompts, compare/contrast",
+      "hint_level": "faded"
+    },
+    {
+      "level": 3,
+      "evidence": "Repeated independent success",
+      "scaffolding": "Independent lab and mixed retrieval",
+      "hint_level": "minimal"
+    },
+    {
+      "level": 4,
+      "evidence": "High mastery with transfer",
+      "scaffolding": "Novel scenario, time pressure, multi-domain integration",
+      "hint_level": "none"
+    }
+  ]
+}

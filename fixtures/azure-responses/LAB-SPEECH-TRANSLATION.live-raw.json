@@ -1,0 +1,22 @@
+{
+  "speech": {
+    "speech_to_text": {
+      "transcript": "AI-103 speech lab synthetic sample."
+    },
+    "text_to_speech": {
+      "synthesis_labeled": true
+    },
+    "translation": {
+      "target_language": "es"
+    },
+    "consent_license": {
+      "valid": true
+    }
+  },
+  "resource_ids": [],
+  "cost_estimate": {
+    "currency": "USD",
+    "estimated": 0.0
+  },
+  "teardown_verified": true
+}

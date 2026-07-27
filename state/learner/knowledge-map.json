@@ -1,18 +1,81 @@
 {
-  "language-services": {
-    "confidence": 0.0,
-    "mastery": 0.0
+  "domains": {
+    "CV": {
+      "confidence": 0.0,
+      "evidence_refs": [
+        "legacy:vision-services"
+      ],
+      "mastery": 0.0
+    },
+    "GA": {
+      "confidence": 0.0,
+      "evidence_refs": [
+        "legacy:search-services"
+      ],
+      "mastery": 0.0
+    },
+    "IE": {
+      "confidence": 0.0,
+      "evidence_refs": [
+        "legacy:language-services",
+        "legacy:search-services"
+      ],
+      "mastery": 0.0
+    },
+    "PM": {
+      "confidence": 0.0,
+      "evidence_refs": [
+        "legacy:responsible-ai"
+      ],
+      "mastery": 0.0
+    },
+    "TA": {
+      "confidence": 0.0,
+      "evidence_refs": [
+        "legacy:language-services"
+      ],
+      "mastery": 0.0
+    }
   },
-  "responsible-ai": {
-    "confidence": 0.0,
-    "mastery": 0.0
+  "exam": "AI-103",
+  "legacy_evidence": {
+    "captured_at": "2026-07-25T00:00:00Z",
+    "concepts": {
+      "language-services": {
+        "confidence": 0.0,
+        "mastery": 0.0
+      },
+      "responsible-ai": {
+        "confidence": 0.0,
+        "mastery": 0.0
+      },
+      "search-services": {
+        "confidence": 0.0,
+        "mastery": 0.0
+      },
+      "vision-services": {
+        "confidence": 0.0,
+        "mastery": 0.0
+      }
+    },
+    "mapping": {
+      "language-services": [
+        "TA",
+        "IE"
+      ],
+      "responsible-ai": [
+        "PM"
+      ],
+      "search-services": [
+        "GA",
+        "IE"
+      ],
+      "vision-services": [
+        "CV"
+      ]
+    },
+    "rule": "Domain mastery/confidence uses the minimum mapped legacy value; unmapped domains start at 0.",
+    "source_schema_version": 1
   },
-  "search-services": {
-    "confidence": 0.0,
-    "mastery": 0.0
-  },
-  "vision-services": {
-    "confidence": 0.0,
-    "mastery": 0.0
-  }
+  "schema_version": 2
 }

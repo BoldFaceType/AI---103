@@ -1,0 +1,30 @@
+{
+  "competency_ids": [
+    "IE-04"
+  ],
+  "lesson_id": "IE-04",
+  "questions": [
+    {
+      "answer_key": "grounded representation with citations before RAG or agent use",
+      "competency_id": "IE-04",
+      "id": "IE-04-mc",
+      "kind": "multiple_choice",
+      "points": 1
+    },
+    {
+      "competency_id": "IE-04",
+      "id": "IE-04-checklist",
+      "kind": "concept_checklist",
+      "points": 2,
+      "required_concepts": [
+        "source modality",
+        "Azure extraction path",
+        "search or analyzer validation",
+        "citations",
+        "offline fixture"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "score_scale": "practice"
+}

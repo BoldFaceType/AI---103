@@ -1,0 +1,31 @@
+{
+  "competency_ids": [
+    "GA-08",
+    "GA-09"
+  ],
+  "lesson_id": "GA-07",
+  "questions": [
+    {
+      "answer_key": "visible evidence before model trust",
+      "competency_id": "GA-08",
+      "id": "GA-07-mc",
+      "kind": "multiple_choice",
+      "points": 1
+    },
+    {
+      "competency_id": "GA-09",
+      "id": "GA-07-checklist",
+      "kind": "concept_checklist",
+      "points": 2,
+      "required_concepts": [
+        "user goal",
+        "azure ai workflow",
+        "validation",
+        "telemetry",
+        "rejected option"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "score_scale": "practice"
+}

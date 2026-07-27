@@ -1,0 +1,30 @@
+{
+  "competency_ids": [
+    "PM-05",
+    "PM-06"
+  ],
+  "lesson_id": "PM-03",
+  "questions": [
+    {
+      "answer_key": "deterministic evidence first",
+      "competency_id": "PM-05",
+      "id": "PM-03-mc",
+      "kind": "multiple_choice",
+      "points": 1
+    },
+    {
+      "competency_id": "PM-06",
+      "id": "PM-03-checklist",
+      "kind": "concept_checklist",
+      "points": 2,
+      "required_concepts": [
+        "workload goal",
+        "rejected option",
+        "evidence",
+        "operational control"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "score_scale": "practice"
+}

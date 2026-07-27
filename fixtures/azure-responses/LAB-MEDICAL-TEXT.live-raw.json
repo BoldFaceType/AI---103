@@ -1,0 +1,60 @@
+{
+  "medical_text": {
+    "redacted_markdown": "Synthetic clinical note: <redacted-synthetic-person> reports mild headache after screen-heavy study. No emergency signs reported.",
+    "redactions": [
+      {
+        "type": "synthetic_patient_identifier",
+        "redacted": true
+      }
+    ],
+    "entities": [
+      {
+        "category": "symptom",
+        "text": "headache"
+      }
+    ],
+    "topics": [
+      "triage",
+      "self-care",
+      "safety"
+    ],
+    "structured_fields": {
+      "encounter_type": "synthetic triage",
+      "symptom": "headache",
+      "severity_level": "mild",
+      "next_step": "self-care and follow-up if symptoms worsen"
+    },
+    "summary": "Synthetic note describes mild headache after screen-heavy study with no emergency signs.",
+    "tone_safety": {
+      "tone": "reassuring",
+      "urgent_risk": false,
+      "medical_advice_disclaimer": true
+    },
+    "domain_concepts": [
+      "PII redaction",
+      "entity extraction"
+    ],
+    "service_comparison": {
+      "language": "PII, entities, topics",
+      "content_understanding": "layout and structured fields",
+      "model": "summary and safety explanation"
+    },
+    "model_metadata": {
+      "services": [
+        "Azure AI Language",
+        "Azure AI Content Understanding",
+        "Azure AI Foundry Responses API"
+      ],
+      "model": "deterministic-medical-text-fixture"
+    }
+  },
+  "resource_ids": [
+    "https://acct.services.ai.azure.com",
+    "https://acct.services.ai.azure.com/api/projects/project-a"
+  ],
+  "cost_estimate": {
+    "currency": "USD",
+    "estimated": 0.04
+  },
+  "teardown_verified": true
+}

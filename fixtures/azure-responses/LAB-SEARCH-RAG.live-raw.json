@@ -1,0 +1,42 @@
+{
+  "content_understanding": {
+    "result": {
+      "sections": [
+        "Vector search setup",
+        "Index schema",
+        "Grounded citation policy"
+      ]
+    }
+  },
+  "cost_estimate": {
+    "currency": "USD",
+    "estimated": 0.02
+  },
+  "foundry": {
+    "citations": [
+      "doc-1#p3"
+    ],
+    "model_metadata": {
+      "model": "configured-foundry-model",
+      "service": "Azure AI Foundry Responses API"
+    },
+    "output_text": "Use the indexed deployment note and cite [doc-1#p3]."
+  },
+  "resource_ids": [
+    "/subscriptions/00000000-1111-2222-3333-444444444444/resourceGroups/rg-ai103/providers/Microsoft.Search/searchServices/ai103-search"
+  ],
+  "search": {
+    "value": [
+      {
+        "chunk": "Vector search setup requires an embedding field and citation metadata.",
+        "source_id": "doc-1#p3"
+      }
+    ]
+  },
+  "storage": {
+    "properties": {
+      "allowBlobPublicAccess": false
+    }
+  },
+  "teardown_verified": true
+}

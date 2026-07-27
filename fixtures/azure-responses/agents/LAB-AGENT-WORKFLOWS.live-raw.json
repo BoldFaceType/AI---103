@@ -1,0 +1,151 @@
+{
+  "agents": {
+    "single_agent": "replay-only live shape placeholder",
+    "retrieval_agent": "replay-only live shape placeholder",
+    "approval_workflow": "replay-only live shape placeholder",
+    "multi_agent": "replay-only live shape placeholder",
+    "evaluation": {
+      "trace_complete": true
+    }
+  },
+  "validated_agents": {
+    "tools": {
+      "lookup_objective": {
+        "input_schema": {
+          "required": ["objective_id"]
+        },
+        "output_schema": {
+          "required": ["title", "source"]
+        }
+      },
+      "query_lab_index": {
+        "input_schema": {
+          "required": ["query", "index_name"]
+        },
+        "output_schema": {
+          "required": ["citations"]
+        }
+      },
+      "request_human_approval": {
+        "input_schema": {
+          "required": ["action", "risk"]
+        },
+        "output_schema": {
+          "required": ["approved"]
+        }
+      },
+      "summarize_trace": {
+        "input_schema": {
+          "required": ["trace_id"]
+        },
+        "output_schema": {
+          "required": ["summary"]
+        }
+      }
+    },
+    "single_agent": {
+      "role": "AI-103 study coach",
+      "goal": "Explain grounded generation using a tool result and memory.",
+      "memory": {
+        "used": true,
+        "items": ["learner prefers retrieval practice before explanation"]
+      },
+      "tool_call": {
+        "name": "lookup_objective",
+        "args": {
+          "objective_id": "GA-01"
+        },
+        "output": {
+          "title": "Plan and design generative AI apps",
+          "source": "AI-103 study guide"
+        }
+      }
+    },
+    "retrieval_agent": {
+      "index_name": "ai103-lab-vector-study",
+      "tool_call": {
+        "name": "query_lab_index",
+        "args": {
+          "query": "hybrid search grounding",
+          "index_name": "ai103-lab-vector-study"
+        },
+        "output": {
+          "citations": ["doc-hybrid#p1"]
+        }
+      },
+      "citations": ["doc-hybrid#p1"]
+    },
+    "approval_workflow": {
+      "approved_before_execution": true,
+      "tool_call": {
+        "name": "request_human_approval",
+        "args": {
+          "action": "delete lab index",
+          "risk": "destructive"
+        },
+        "output": {
+          "approved": true
+        },
+        "destructive": true,
+        "billable": false,
+        "approval_required": true
+      }
+    },
+    "multi_agent": {
+      "handoffs": [
+        {
+          "trace_id": "trace-handoff-1",
+          "from": "planner",
+          "to": "executor",
+          "task": "Run bounded retrieval workflow",
+          "result": "completed within limits"
+        }
+      ]
+    },
+    "failure_cases": {
+      "tool_failure": {
+        "handled": true,
+        "result": "tool error summarized without retry loop"
+      },
+      "timeout": {
+        "handled": true,
+        "result": "workflow stopped at time limit"
+      },
+      "refusal": {
+        "handled": true,
+        "result": "unsafe request refused"
+      },
+      "injection": {
+        "handled": true,
+        "result": "retrieved prompt injection ignored"
+      }
+    },
+    "trace": [
+      {
+        "trace_id": "trace-single-1",
+        "kind": "tool_call",
+        "agent": "single_agent"
+      },
+      {
+        "trace_id": "trace-handoff-1",
+        "kind": "handoff",
+        "from": "planner",
+        "to": "executor"
+      }
+    ],
+    "evaluation": {
+      "steps": 5,
+      "within_limits": true,
+      "trace_complete": true,
+      "safety_passed": true,
+      "latency_ms": 2400,
+      "tokens": 1200
+    }
+  },
+  "resource_ids": [],
+  "cost_estimate": {
+    "currency": "USD",
+    "estimated": 0.0
+  },
+  "teardown_verified": true
+}

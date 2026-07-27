@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "exam": "AI-103",
+  "credential": "Microsoft Certified: Azure AI Apps and Agents Developer Associate",
+  "primary_source": {
+    "title": "Study guide for Exam AI-103: Developing AI Apps and Agents on Azure",
+    "url": "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-103",
+    "skills_measured_date": "2026-04-16",
+    "last_updated_on": "2026-04-14",
+    "last_verified_at": "2026-07-25",
+    "normalized_source_hash": "d7e6d72443829f2cfc4d0f5d256f9f1d879b255ec0c9312298fd1cde7b5a0118"
+  },
+  "supporting_sources": [
+    {
+      "title": "Microsoft Certified: Azure AI Apps and Agents Developer Associate",
+      "url": "https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-apps-and-agents-developer-associate/",
+      "last_verified_at": "2026-07-25"
+    },
+    {
+      "title": "Course AI-103T00-A: Develop AI apps and agents on Azure",
+      "url": "https://learn.microsoft.com/en-us/training/courses/ai-103t00",
+      "last_verified_at": "2026-07-25"
+    }
+  ],
+  "source_precedence": [
+    "Official AI-103 study guide",
+    "Official certification page",
+    "Official AI-103T00-A course",
+    "Current Microsoft Learn product documentation",
+    "Repository documentation",
+    "Historical planning documents"
+  ],
+  "domain_count": 5,
+  "competency_count": 64
+}

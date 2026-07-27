@@ -1,14 +1,124 @@
 {
-  "language-services": {
-    "weight": 0.25
+  "exam": "AI-103",
+  "legacy_objective_mapping": {
+    "language-services": {
+      "mapped_to": [
+        "TA",
+        "IE"
+      ],
+      "preservation": "legacy evidence retained; mastery is not increased"
+    },
+    "responsible-ai": {
+      "mapped_to": [
+        "PM"
+      ],
+      "preservation": "legacy evidence retained; mastery is not increased"
+    },
+    "search-services": {
+      "mapped_to": [
+        "GA",
+        "IE"
+      ],
+      "preservation": "legacy evidence retained; mastery is not increased"
+    },
+    "vision-services": {
+      "mapped_to": [
+        "CV"
+      ],
+      "preservation": "legacy evidence retained; mastery is not increased"
+    }
   },
-  "responsible-ai": {
-    "weight": 0.25
+  "objectives": {
+    "CV": {
+      "competency_ids": [
+        "CV-01",
+        "CV-02",
+        "CV-03",
+        "CV-04",
+        "CV-05",
+        "CV-06",
+        "CV-07",
+        "CV-08",
+        "CV-09",
+        "CV-10",
+        "CV-11",
+        "CV-12",
+        "CV-13",
+        "CV-14",
+        "CV-15",
+        "CV-16"
+      ],
+      "weight": 0.133
+    },
+    "GA": {
+      "competency_ids": [
+        "GA-01",
+        "GA-02",
+        "GA-03",
+        "GA-04",
+        "GA-05",
+        "GA-06",
+        "GA-07",
+        "GA-08",
+        "GA-09",
+        "GA-10",
+        "GA-11",
+        "GA-12",
+        "GA-13",
+        "GA-14",
+        "GA-15",
+        "GA-16"
+      ],
+      "weight": 0.325
+    },
+    "IE": {
+      "competency_ids": [
+        "IE-01",
+        "IE-02",
+        "IE-03",
+        "IE-04",
+        "IE-05",
+        "IE-06",
+        "IE-07",
+        "IE-08"
+      ],
+      "weight": 0.134
+    },
+    "PM": {
+      "competency_ids": [
+        "PM-01",
+        "PM-02",
+        "PM-03",
+        "PM-04",
+        "PM-05",
+        "PM-06",
+        "PM-07",
+        "PM-08",
+        "PM-09",
+        "PM-10",
+        "PM-11",
+        "PM-12",
+        "PM-13",
+        "PM-14",
+        "PM-15",
+        "PM-16"
+      ],
+      "weight": 0.275
+    },
+    "TA": {
+      "competency_ids": [
+        "TA-01",
+        "TA-02",
+        "TA-03",
+        "TA-04",
+        "TA-05",
+        "TA-06",
+        "TA-07",
+        "TA-08"
+      ],
+      "weight": 0.133
+    }
   },
-  "search-services": {
-    "weight": 0.25
-  },
-  "vision-services": {
-    "weight": 0.25
-  }
+  "schema_version": 2,
+  "source_curriculum": "config/curriculum.ai103.json"
 }
